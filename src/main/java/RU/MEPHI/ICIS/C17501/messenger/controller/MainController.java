@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MainController {
     @GetMapping
     public ResponseEntity<TestControllerEntity> main() {
-        return new ResponseEntity<>(new TestControllerEntity("it is the Id","It is the name" ), HttpStatus.OK);
+        return new ResponseEntity<>(new TestControllerEntity("it is the Id", "It is the name"), HttpStatus.OK);
     }
 
 }
