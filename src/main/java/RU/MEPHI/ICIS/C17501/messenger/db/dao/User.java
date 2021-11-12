@@ -39,8 +39,8 @@ public class User {
     @JoinColumn(name = "login",insertable = false,updatable = false)
     private UserCredentials userCredentials;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
-    private Set<Role> rolesSet;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
+    private Set<RoleUser> rolesOfUserSet;
 
 
 

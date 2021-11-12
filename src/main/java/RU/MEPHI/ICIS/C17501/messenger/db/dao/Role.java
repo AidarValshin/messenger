@@ -14,11 +14,16 @@ import java.util.Set;
 @Entity
 public class Role {
     @Id
-    private Long id_role;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition = "serial")
+    private Integer id_role;
 
     @Column(nullable = false, length = 50)
     private String name;
 
     @Column(nullable = false, length = 500)
     private String description;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "id_role", cascade = CascadeType.ALL)
+    private Set<RoleUser> usersOfRoleSet;
 }
