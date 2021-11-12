@@ -33,15 +33,24 @@ public class User {
     @Column(nullable = false)
     private Boolean isDeleted;
     @Column(nullable = false)
-    private Boolean Locked;
+    private Boolean isLocked;
+    @Column(nullable = false,length =1 )
+    private String gender;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "login",insertable = false,updatable = false)
+    @ToString.Exclude
     private UserCredentials userCredentials;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private Set<RoleUser> rolesOfUserSet;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private Set<Message> messagesSet;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private Set<ChatContact> chatContactsSet;
 }

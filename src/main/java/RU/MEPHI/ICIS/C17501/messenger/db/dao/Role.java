@@ -15,8 +15,8 @@ import java.util.Set;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(columnDefinition = "serial")
-    private Integer id_role;
+    @Column(columnDefinition = "serial",name = "id_role")
+    private Integer idRole;
 
     @Column(nullable = false, length = 50)
     private String name;
@@ -24,6 +24,7 @@ public class Role {
     @Column(nullable = false, length = 500)
     private String description;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "id_role", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "idRole", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private Set<RoleUser> usersOfRoleSet;
 }

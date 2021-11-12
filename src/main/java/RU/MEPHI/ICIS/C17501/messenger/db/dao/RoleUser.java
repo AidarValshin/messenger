@@ -1,9 +1,9 @@
 package RU.MEPHI.ICIS.C17501.messenger.db.dao;
 
+import RU.MEPHI.ICIS.C17501.messenger.db.key.RoleUserPK;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -15,17 +15,19 @@ import java.util.Set;
 @IdClass(RoleUserPK.class)
 public class RoleUser {
     @Id
-    @Column(nullable = false)
-    private Integer id_role;
+    @Column(nullable = false,name = "id_role")
+    private Integer idRole;
     @Id
-    @Column( length = 20)
+    @Column(nullable = false, length = 20)
     private String telephoneNumber;
 
     @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
-    @JoinColumn(name="id_role" , insertable = false, updatable = false )
+    @JoinColumn(name="idRole" , insertable = false, updatable = false )
+    @ToString.Exclude
     private Role role;
 
     @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinColumn(name="telephoneNumber" , insertable = false, updatable = false )
+    @ToString.Exclude
     private User user;
 }

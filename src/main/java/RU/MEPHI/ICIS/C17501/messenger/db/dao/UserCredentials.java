@@ -24,6 +24,7 @@ public class UserCredentials {
 
     @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinColumn(name = "login",insertable = false,updatable = false)
+    @ToString.Exclude
     private User user;
 
 
