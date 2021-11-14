@@ -78,7 +78,7 @@ ON messenger.user_credentials(login);
         date_of_birth date not null,
         first_name varchar(20) not null,
         gender varchar(1) not null,
-        id_photo int8 not null,
+        id_photo int8 ,
         is_deleted boolean not null,
         is_locked boolean not null,
         login varchar(20) not null,
@@ -146,3 +146,5 @@ ON messenger.users(second_name);
        add constraint FK2oq7g3lh6kjiv3qsoec3oli0m
        foreign key (login)
        references messenger.user_credentials ;
+
+
