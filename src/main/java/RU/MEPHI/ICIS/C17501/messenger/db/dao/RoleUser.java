@@ -15,19 +15,19 @@ import javax.persistence.*;
 @IdClass(RoleUserPK.class)
 public class RoleUser {
     @Id
-    @Column(nullable = false,name = "id_role")
+    @Column(nullable = false, name = "id_role")
     private Integer idRole;
     @Id
     @Column(nullable = false, length = 20)
     private String telephoneNumber;
 
-    @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
-    @JoinColumn(name="idRole" , insertable = false, updatable = false )
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "idRole", insertable = false, updatable = false)
     @ToString.Exclude
     private Role role;
 
-    @OneToOne(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
-    @JoinColumn(name="telephoneNumber" , insertable = false, updatable = false )
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "telephoneNumber", insertable = false, updatable = false)
     @ToString.Exclude
     private User user;
 }

@@ -27,9 +27,10 @@ public class Message {
     @Column(nullable = false)
     @UpdateTimestamp
     private Date lastChangesDate;
+    @Column(nullable = false)
     @CreationTimestamp
     private Date date;
-    @Column(length = 20)
+    @Column(nullable = false, length = 20)
     private String telephoneNumber;
     private Boolean isDeleted;
 
