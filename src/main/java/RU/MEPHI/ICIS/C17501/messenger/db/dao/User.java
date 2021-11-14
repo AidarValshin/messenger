@@ -28,7 +28,7 @@ public class User {
     private Date dateOfBirth;
     @Column(nullable = false)
     private Long idPhoto;
-    @Column(nullable = false, length = 80)
+    @Column( length = 80)
     private String photoUrl;
     @Column(nullable = false)
     private Boolean isDeleted;

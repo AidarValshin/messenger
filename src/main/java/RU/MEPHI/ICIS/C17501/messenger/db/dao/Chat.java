@@ -22,11 +22,11 @@ public class Chat {
     @Column(length = 80)
     private String photo_url;
     private Date lastMessageDate;
-    @Column(name = "id_message")
+    @Column(name = "last_message_id")
     private Long lastMessageId;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_message", insertable = false, updatable = false)
+    @JoinColumn(name = "last_message_id", insertable = false, updatable = false)
     @ToString.Exclude
     private Message lastMessage;
 
