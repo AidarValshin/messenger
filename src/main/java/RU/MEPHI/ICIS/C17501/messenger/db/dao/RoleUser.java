@@ -16,7 +16,7 @@ import javax.persistence.*;
 public class RoleUser {
     @Id
     @Column(nullable = false, name = "id_role")
-    private Integer idRole;
+    private Long idRole;
     @Id
     @Column(nullable = false, length = 20)
     private String telephoneNumber;
