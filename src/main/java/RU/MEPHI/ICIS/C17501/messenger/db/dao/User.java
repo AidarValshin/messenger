@@ -26,7 +26,6 @@ public class User {
     private String secondName;
     @Column(nullable = false)
     private Date dateOfBirth;
-    @Column(nullable = false)
     private Long idPhoto;
     @Column( length = 80)
     private String photoUrl;
