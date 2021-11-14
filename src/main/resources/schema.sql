@@ -16,7 +16,7 @@ ON messenger.chat_contacts(id_chat_contact);
        id_chat bigserial ,
         last_message_date timestamp,
         last_message_id int8,
-        photo_url varchar(80),
+        photo_url varchar(200),
         primary key (id_chat)
     )
 ;
@@ -78,11 +78,10 @@ ON messenger.user_credentials(login);
         date_of_birth date not null,
         first_name varchar(20) not null,
         gender varchar(1) not null,
-        id_photo int8 ,
         is_deleted boolean not null,
         is_locked boolean not null,
         login varchar(20) not null,
-        photo_url varchar(80) ,
+        photo_url varchar(200) ,
         second_name varchar(20) not null,
         primary key (telephone_number)
     );
@@ -146,5 +145,3 @@ ON messenger.users(second_name);
        add constraint FK2oq7g3lh6kjiv3qsoec3oli0m
        foreign key (login)
        references messenger.user_credentials ;
-
-
