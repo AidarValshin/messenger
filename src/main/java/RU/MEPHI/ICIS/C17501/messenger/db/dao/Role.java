@@ -15,7 +15,7 @@ import java.util.Set;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(columnDefinition = "serial",name = "id_role")
+    @Column(columnDefinition = "serial", name = "id_role")
     private Integer idRole;
 
     @Column(nullable = false, length = 50)

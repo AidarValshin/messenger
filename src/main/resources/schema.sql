@@ -26,10 +26,10 @@ ON messenger.chats( id_chat);
     create table messenger.messages (
        id_message bigserial ,
         is_deleted boolean,
-        date timestamp,
+        date timestamp not null,
         id_chat int8 not null,
         last_changes_date timestamp not null,
-        telephone_number varchar(20),
+        telephone_number varchar(20) not null,
         text varchar(1000) not null,
         primary key (id_message)
     )
