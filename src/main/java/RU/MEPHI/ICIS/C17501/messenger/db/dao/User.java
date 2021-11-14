@@ -1,5 +1,6 @@
 package RU.MEPHI.ICIS.C17501.messenger.db.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,7 +14,7 @@ import java.util.Set;
 @ToString
 @Table(name = "users")
 @Entity
-public class User {
+public class User  {
 
     @Id
     @Column( length = 20)
@@ -26,8 +27,7 @@ public class User {
     private String secondName;
     @Column(nullable = false)
     private Date dateOfBirth;
-    private Long idPhoto;
-    @Column( length = 80)
+    @Column( length = 200)
     private String photoUrl;
     @Column(nullable = false)
     private Boolean isDeleted;
@@ -36,19 +36,23 @@ public class User {
     @Column(nullable = false,length =1 )
     private String gender;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "login",insertable = false,updatable = false)
     @ToString.Exclude
     private UserCredentials userCredentials;
 
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<RoleUser> rolesOfUserSet;
 
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<Message> messagesSet;
 
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<ChatContact> chatContactsSet;
