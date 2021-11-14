@@ -16,7 +16,7 @@ ON messenger.chat_contacts(id_chat_contact);
        id_chat bigserial ,
         last_message_date timestamp,
         id_message int8,
-        photo_url varchar(30),
+        photo_url varchar(80),
         primary key (id_chat)
     )
 ;
@@ -75,14 +75,14 @@ ON messenger.user_credentials(login);
 
     create table messenger.users (
        telephone_number varchar(20) not null,
-        date_of_birth timestamp not null,
+        date_of_birth date not null,
         first_name varchar(20) not null,
         gender varchar(1) not null,
         id_photo int8 not null,
         is_deleted boolean not null,
         is_locked boolean not null,
         login varchar(20) not null,
-        photo_url varchar(30) not null,
+        photo_url varchar(80) not null,
         second_name varchar(20) not null,
         primary key (telephone_number)
     );

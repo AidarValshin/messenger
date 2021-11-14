@@ -3,7 +3,7 @@ package RU.MEPHI.ICIS.C17501.messenger.db.dao;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.sql.Date;
 import java.util.Set;
 
 @Getter
@@ -28,7 +28,7 @@ public class User {
     private Date dateOfBirth;
     @Column(nullable = false)
     private Long idPhoto;
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 80)
     private String photoUrl;
     @Column(nullable = false)
     private Boolean isDeleted;
