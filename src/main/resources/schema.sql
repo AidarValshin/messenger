@@ -15,7 +15,7 @@ ON messenger.chat_contacts(id_chat_contact);
     create table messenger.chats (
        id_chat bigserial ,
         last_message_date timestamp,
-        id_message int8,
+        last_message_id int8,
         photo_url varchar(80),
         primary key (id_chat)
     )
@@ -82,7 +82,7 @@ ON messenger.user_credentials(login);
         is_deleted boolean not null,
         is_locked boolean not null,
         login varchar(20) not null,
-        photo_url varchar(80) not null,
+        photo_url varchar(80) ,
         second_name varchar(20) not null,
         primary key (telephone_number)
     );
@@ -120,8 +120,8 @@ ON messenger.users(second_name);
 
     alter table if exists messenger.chats
        add constraint FKnsbqqie3vo05v9j6au5m62n1q
-       foreign key (id_message)
-       references messenger.messages
+       foreign key (last_message_id)
+       references messenger.messages (id_message)
 ;
 
     alter table if exists messenger.messages
