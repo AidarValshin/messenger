@@ -14,10 +14,10 @@ import java.util.Set;
 @ToString
 @Table(name = "users")
 @Entity
-public class User  {
+public class User {
 
     @Id
-    @Column( length = 20)
+    @Column(length = 20)
     private String telephoneNumber;
     @Column(nullable = false, length = 20)
     private String login;
@@ -27,18 +27,18 @@ public class User  {
     private String secondName;
     @Column(nullable = false)
     private Date dateOfBirth;
-    @Column( length = 200)
+    @Column(length = 200)
     private String photoUrl;
     @Column(nullable = false)
     private Boolean isDeleted;
     @Column(nullable = false)
     private Boolean isLocked;
-    @Column(nullable = false,length =1 )
+    @Column(nullable = false, length = 1)
     private String gender;
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "login",insertable = false,updatable = false)
+    @JoinColumn(name = "login", insertable = false, updatable = false)
     @ToString.Exclude
     private UserCredentials userCredentials;
 

@@ -3,8 +3,6 @@ package RU.MEPHI.ICIS.C17501.messenger.db.dao;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -19,20 +17,20 @@ public class ChatContact {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "bigserial")
     private Long idChatContact;
-    @Column(nullable = false,name = "id_chat")
+    @Column(nullable = false, name = "id_chat")
     private Long idChat;
     @Column(nullable = false, length = 20)
     private String telephoneNumber;
-    @Column(name ="id_message" )
+    @Column(name = "id_message")
     private Long lastMessageId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(nullable = false,name = "id_chat", insertable = false, updatable = false)
+    @JoinColumn(nullable = false, name = "id_chat", insertable = false, updatable = false)
     @ToString.Exclude
     private Chat chat;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "telephoneNumber", insertable = false, updatable = false,nullable = false)
+    @JoinColumn(name = "telephoneNumber", insertable = false, updatable = false, nullable = false)
     @ToString.Exclude
     private User user;
 
