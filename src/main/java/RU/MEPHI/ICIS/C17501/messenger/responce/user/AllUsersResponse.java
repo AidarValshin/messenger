@@ -1,6 +1,7 @@
-package RU.MEPHI.ICIS.C17501.messenger.responce;
+package RU.MEPHI.ICIS.C17501.messenger.responce.user;
 
 import RU.MEPHI.ICIS.C17501.messenger.db.dto.UserDTO;
+import RU.MEPHI.ICIS.C17501.messenger.responce.Response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
