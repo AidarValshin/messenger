@@ -24,6 +24,7 @@ public class UsersController {
         return userService.getUserByTelephoneNumber(telephoneNumber,requesterTelephoneNumber);
     }
 
+
     @PostMapping    ("/{telephoneNumber}/block")
     public Response blockUserByTelephoneNumber(@PathVariable String telephoneNumber,
                                                @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
