@@ -1,5 +1,6 @@
 package RU.MEPHI.ICIS.C17501.messenger.db.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,7 +25,9 @@ public class Role {
     @Column(nullable = false, length = 500)
     private String description;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "idRole", cascade = CascadeType.ALL)
+
+    @JsonIgnore
+    @ManyToMany(cascade = CascadeType.REFRESH,mappedBy = "roles")
     @ToString.Exclude
-    private Set<RoleUser> usersOfRoleSet;
+    Set<User> users;
 }

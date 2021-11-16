@@ -7,6 +7,6 @@ public class RoleUserPK implements Serializable {
     @Column(nullable = false)
     private Long idRole;
 
-    @Column( length = 20)
+    @Column(length = 20)
     private String telephoneNumber;
 }
