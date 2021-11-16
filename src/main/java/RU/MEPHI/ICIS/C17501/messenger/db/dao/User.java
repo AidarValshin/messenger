@@ -2,6 +2,8 @@ package RU.MEPHI.ICIS.C17501.messenger.db.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -45,15 +47,19 @@ public class User {
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private Set<RoleUser> rolesOfUserSet;
-
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
-    @ToString.Exclude
     private Set<Message> messagesSet;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<ChatContact> chatContactsSet;
+
+    @JsonIgnore
+    @ManyToMany(cascade = CascadeType.REFRESH,fetch = FetchType.EAGER)
+    @ToString.Exclude
+    @JoinTable(
+            name = "roles_users_mapping",
+            joinColumns = @JoinColumn(name="telephoneNumber"),
+            inverseJoinColumns = @JoinColumn(name = "idRole"))
+    Set<Role> roles;
 }
