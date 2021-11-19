@@ -14,6 +14,7 @@ ON messenger.chat_contacts(id_chat_contact);
 
     create table messenger.chats (
        id_chat bigserial ,
+       name varchar(200) not null,
         last_message_date timestamp,
         last_message_id int8,
         photo_url varchar(200),
