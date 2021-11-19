@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.Column;
-import java.sql.Date;
 
 @Getter
 @Setter
@@ -25,4 +24,4 @@ public class ChatDTO {
     private Long lastMessageId;
     @Column(name = "is_subscriber")
     private Boolean isSubscriber;
-    }
+}

@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
 
-    @Query(value="select u.telephone_number as telephoneNumber," +
+    @Query(value = "select u.telephone_number as telephoneNumber," +
             "       u.login as login," +
             "       u.first_name as firstName," +
             "       u.second_name as secondName," +
@@ -22,10 +22,8 @@ public interface UserRepository extends JpaRepository<User, String> {
             "       u.gender as gender," +
             "       r.name as roleName " +
             "from messenger.users u left join  messenger.roles_users_mapping m on u.telephone_number=m.telephone_number" +
-            " left join  messenger.roles r on m.id_role=r.id_role",nativeQuery = true)
-public List<UserProjection> findAllByProjection();
-
-
+            " left join  messenger.roles r on m.id_role=r.id_role", nativeQuery = true)
+    public List<UserProjection> findAllByProjection();
 
 
 }

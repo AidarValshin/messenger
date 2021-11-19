@@ -19,10 +19,10 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "bigserial", name = "id_chat")
     private Long idChat;
-    @Column(length = 200,name="name")
+    @Column(length = 200, name = "name")
     private String chatName;
     @Column(length = 200)
-    private String photo_url;
+    private String photoUrl;
     private Date lastMessageDate;
     @Column(name = "last_message_id")
     private Long lastMessageId;

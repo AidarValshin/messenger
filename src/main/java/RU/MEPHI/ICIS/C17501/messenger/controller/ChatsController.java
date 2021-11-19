@@ -1,6 +1,7 @@
 package RU.MEPHI.ICIS.C17501.messenger.controller;
 
 import RU.MEPHI.ICIS.C17501.messenger.responce.Response;
+import RU.MEPHI.ICIS.C17501.messenger.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,20 +14,20 @@ public class ChatsController {
 
     @GetMapping
     public Response getAllStreams(@RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
-        return chatService.getAllUsers(requesterTelephoneNumber);
+        return chatService.getAllChats(requesterTelephoneNumber);
     }
 
-    @GetMapping("/{telephoneNumber}")
+    @GetMapping("/users/me/subscriptions")
     public Response getUserByTelephoneNumber(@PathVariable String telephoneNumber,
                                              @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
-        return chatService.getUserByTelephoneNumber(telephoneNumber,requesterTelephoneNumber);
+        return chatService.getAllChatsSubscribed(requesterTelephoneNumber);
     }
 
 
-    @PostMapping    ("/{telephoneNumber}/block")
-    public Response blockUserByTelephoneNumber(@PathVariable String telephoneNumber,
+    @PostMapping("/me/subscriptions/subscribe/{chatId}")
+    public Response blockUserByTelephoneNumber(@PathVariable Long chatId,
                                                @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
-        return chatService.blockUserByTelephoneNumber(telephoneNumber,requesterTelephoneNumber);
+        return chatService.setUserSubscribedToStream(requesterTelephoneNumber, chatId);
     }
 }
 

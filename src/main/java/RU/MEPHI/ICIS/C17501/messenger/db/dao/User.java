@@ -2,8 +2,6 @@ package RU.MEPHI.ICIS.C17501.messenger.db.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -18,6 +16,14 @@ import java.util.Set;
 @Entity
 public class User {
 
+    @JsonIgnore
+    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    @ToString.Exclude
+    @JoinTable(
+            name = "roles_users_mapping",
+            joinColumns = @JoinColumn(name = "telephoneNumber"),
+            inverseJoinColumns = @JoinColumn(name = "idRole"))
+    Set<Role> roles;
     @Id
     @Column(length = 20)
     private String telephoneNumber;
@@ -37,29 +43,17 @@ public class User {
     private Boolean isLocked;
     @Column(nullable = false, length = 1)
     private String gender;
-
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "login", insertable = false, updatable = false)
     @ToString.Exclude
     private UserCredentials userCredentials;
-
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<Message> messagesSet;
-
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<ChatContact> chatContactsSet;
-
-    @JsonIgnore
-    @ManyToMany(cascade = CascadeType.REFRESH,fetch = FetchType.EAGER)
-    @ToString.Exclude
-    @JoinTable(
-            name = "roles_users_mapping",
-            joinColumns = @JoinColumn(name="telephoneNumber"),
-            inverseJoinColumns = @JoinColumn(name = "idRole"))
-    Set<Role> roles;
 }

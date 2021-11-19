@@ -8,15 +8,20 @@ public interface UserProjection {
     public String getPhotoUrl();
 
     public String getTelephoneNumber();
+
     public String getFirstName();
+
     public String getSecondName();
+
     public Set<String> getRoleName();
+
     public Boolean getIsBlocked();
-    
+
     public Boolean getIsDeleted();
-   
+
     public String getLogin();
+
     public Date getDateOfBirth();
-   
+
     public String getGender();
 }
