@@ -51,3 +51,22 @@ values
 (2,'89169740001'),
 (2,'89169740002'),
 (2,'89169740003');
+
+insert into messenger.chats(name)
+values
+('1_stream'),
+('2_stream'),
+('3_stream'),
+('4_stream'),
+('5_stream'),
+('6_stream'),
+('7_stream'),
+('8_stream'),
+('9_stream');
+
+insert into messenger.chat_contacts(id_chat,telephone_number)
+values
+(1,'89370000001'),
+(1,'89370000002'),
+(2,'89370000001'),
+(3,'89370000002');
