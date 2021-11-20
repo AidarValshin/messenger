@@ -14,20 +14,16 @@ import java.util.Set;
 @Table(name = "roles")
 @Entity
 public class Role {
+    @JsonIgnore
+    @ManyToMany(cascade = CascadeType.REFRESH, mappedBy = "roles")
+    @ToString.Exclude
+    Set<User> users;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "serial", name = "id_role")
     private Long idRole;
-
     @Column(nullable = false, length = 50)
     private String name;
-
     @Column(nullable = false, length = 500)
     private String description;
-
-
-    @JsonIgnore
-    @ManyToMany(cascade = CascadeType.REFRESH,mappedBy = "roles")
-    @ToString.Exclude
-    Set<User> users;
 }

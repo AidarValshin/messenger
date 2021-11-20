@@ -11,9 +11,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Response {
     @JsonIgnore
-     public static final String errorMessage="error";
+    public static final String errorMessage = "error";
     @JsonIgnore
-    public static final String successMessage="success";
+    public static final String successMessage = "success";
 
     @JsonProperty(value = "msg", required = true)
     private String message;

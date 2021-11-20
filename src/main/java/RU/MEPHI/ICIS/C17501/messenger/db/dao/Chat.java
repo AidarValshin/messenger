@@ -8,6 +8,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
@@ -19,8 +20,10 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "bigserial", name = "id_chat")
     private Long idChat;
+    @Column(length = 200, name = "name")
+    private String chatName;
     @Column(length = 200)
-    private String photo_url;
+    private String photoUrl;
     private Date lastMessageDate;
     @Column(name = "last_message_id")
     private Long lastMessageId;
@@ -34,5 +37,4 @@ public class Chat {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "idChat", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<Message> messagesSet;
-
 }
