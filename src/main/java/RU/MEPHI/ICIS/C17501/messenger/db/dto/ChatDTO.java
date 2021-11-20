@@ -12,16 +12,16 @@ import javax.persistence.Column;
 @ToString
 @Builder
 public class ChatDTO {
-    @JsonProperty("avatar_url")
+    @JsonProperty(value = "avatar_url")
     private String photoUrl;
-    @JsonProperty("id")
+    @JsonProperty(value ="id")
     private Long id;
-    @JsonProperty("name")
+    @JsonProperty(value ="name")
     private String name;
-    @JsonProperty("last_message_date")
+    @JsonProperty(value ="last_message_date")
     private java.util.Date lastMessageDate;
-    @Column(name = "last_message_id")
+    @JsonProperty(value ="last_message_id")
     private Long lastMessageId;
-    @Column(name = "is_subscriber")
+    @JsonProperty(value = "is_subscriber")
     private Boolean isSubscriber;
 }

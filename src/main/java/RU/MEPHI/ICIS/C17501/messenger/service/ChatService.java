@@ -69,7 +69,7 @@ public class ChatService {
         }
         Chat chat = optionalChat.get();
         List<ChatContact> chatContactByTelephoneNumberAndChatId = chatContactRepository
-                .findByTelephoneNumberAndChatId(requesterTelephoneNumber, chat.getIdChat());
+                .findByTelephoneNumberAndIdChat(requesterTelephoneNumber, chat.getIdChat());
         if (!chatContactByTelephoneNumberAndChatId.isEmpty()) {
             return new Response("You are already subscribed", errorMessage);
 
@@ -81,6 +81,20 @@ public class ChatService {
         chatContactRepository.save(chatContact);
         return new Response("", Response.successMessage);
     }
+
+    public Response createStream(String requesterTelephoneNumber, String streamName) {
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
+        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
+            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+        }
+        Chat chat = Chat.builder().chatName(streamName).build();
+        Chat savedChat = chatRepository.save(chat);
+        User user = optionalRequesterUserByTelephoneNumber.get();
+        ChatContact builtChatContact = ChatContact.builder().idChat(savedChat.getIdChat()).telephoneNumber(user.getTelephoneNumber()).build();
+        chatContactRepository.save(builtChatContact);
+        return new Response("", Response.successMessage);
+    }
+
 
     private ChatDTO getChatsDTO(Chat chat, List<ChatContact> allChatsByTelephoneNumber) {
         return ChatDTO.builder()

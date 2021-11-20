@@ -18,16 +18,21 @@ public class ChatsController {
     }
 
     @GetMapping("/users/me/subscriptions")
-    public Response getUserByTelephoneNumber(@PathVariable String telephoneNumber,
-                                             @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
+    public Response getAllChatsSubscribed( @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
         return chatService.getAllChatsSubscribed(requesterTelephoneNumber);
     }
 
 
-    @PostMapping("/me/subscriptions/subscribe/{chatId}")
-    public Response blockUserByTelephoneNumber(@PathVariable Long chatId,
+    @PostMapping("/users/me/subscriptions/subscribe/{chatId}")
+    public Response setUserSubscribedToStream(@PathVariable Long chatId,
                                                @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
         return chatService.setUserSubscribedToStream(requesterTelephoneNumber, chatId);
+    }
+
+    @PostMapping("/create/{chatName}")
+    public Response setUserSubscribedToStream(@PathVariable String chatName,
+                                              @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
+        return chatService.createStream(requesterTelephoneNumber, chatName);
     }
 }
 

@@ -8,9 +8,9 @@ import java.util.List;
 
 @Repository
 public interface ChatContactRepository extends JpaRepository<ChatContact, Long> {
-    public List<ChatContact> findAllByTelephoneNumber(String telephoneNumber);
+    List<ChatContact> findAllByTelephoneNumber(String telephoneNumber);
 
-    public List<ChatContact> findByTelephoneNumberAndChatId(String telephoneNumber, Long chatId);
+     List<ChatContact> findByTelephoneNumberAndIdChat(String telephoneNumber, Long chatId);
 
 
 }

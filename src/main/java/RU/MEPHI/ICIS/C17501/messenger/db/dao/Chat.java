@@ -8,6 +8,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
@@ -36,5 +37,4 @@ public class Chat {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "idChat", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<Message> messagesSet;
-
 }
