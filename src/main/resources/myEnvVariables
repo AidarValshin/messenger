@@ -1,1 +1,3 @@
-datasource.url=jdbc:postgresql://localhost:5433/postgres;datasource.username=postgres;datasource.password=A140220
+datasource.url=jdbc:postgresql://localhost:5432/messenger;
+datasource.username=postgres;
+datasource.password=pg13
