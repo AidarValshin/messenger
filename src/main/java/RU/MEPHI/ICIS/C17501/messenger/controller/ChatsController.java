@@ -30,7 +30,7 @@ public class ChatsController {
     }
 
     @PostMapping("/create/{chatName}")
-    public Response setUserSubscribedToStream(@PathVariable String chatName,
+    public Response subscribeToStream(@PathVariable String chatName,
                                               @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
         return chatService.createStream(requesterTelephoneNumber, chatName);
     }
