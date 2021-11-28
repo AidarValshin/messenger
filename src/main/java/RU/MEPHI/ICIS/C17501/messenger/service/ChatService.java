@@ -94,7 +94,7 @@ public class ChatService {
         chatContactRepository.save(builtChatContact);
         return new Response("", Response.successMessage);
     }
-
+//TODO findByName, findById, пагинация
 
     private ChatDTO getChatsDTO(Chat chat, List<ChatContact> allChatsByTelephoneNumber) {
         return ChatDTO.builder()

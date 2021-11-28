@@ -25,4 +25,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     public List<Chat> findAllByIdChatIn(Collection<Long> chats);
 
+    public List<Chat> findAllByChatName(String chatName);
+
+    //TODO пагинация для всех и по имени
 }
