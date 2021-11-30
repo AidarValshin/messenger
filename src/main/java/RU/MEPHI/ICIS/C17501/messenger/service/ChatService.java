@@ -10,6 +10,7 @@ import RU.MEPHI.ICIS.C17501.messenger.db.repo.UserRepository;
 import RU.MEPHI.ICIS.C17501.messenger.responce.Response;
 import RU.MEPHI.ICIS.C17501.messenger.responce.chat.AllChatsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,12 +30,13 @@ public class ChatService {
     @Autowired
     ChatContactRepository chatContactRepository;
 
-    public Response getAllChats(String requesterTelephoneNumber) {
+    public Response getAllChats(String requesterTelephoneNumber, int offsetPages, int sizeOfPage) {
         Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
         if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
             return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
         }
-        List<Chat> allChats = chatRepository.findAll();
+        List<Chat> allChats = chatRepository.findAll(PageRequest.of(offsetPages, sizeOfPage))
+                .getContent();
         ArrayList<ChatDTO> chatDTOS = new ArrayList<>(allChats.size());
         List<ChatContact> allChatsByTelephoneNumber = chatContactRepository.findAllByTelephoneNumber(requesterTelephoneNumber);
         for (Chat chat : allChats) {
@@ -42,6 +44,21 @@ public class ChatService {
         }
         return new AllChatsResponse("", Response.successMessage, chatDTOS);
     }
+
+    public Response getAllChatsByName(String requesterTelephoneNumber, String chatName) {
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
+        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
+            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+        }
+        List<Chat> allChats = chatRepository.findAllByChatName(chatName);
+        ArrayList<ChatDTO> chatDTOS = new ArrayList<>(allChats.size());
+        List<ChatContact> allChatsByTelephoneNumber = chatContactRepository.findAllByTelephoneNumber(requesterTelephoneNumber);
+        for (Chat chat : allChats) {
+            chatDTOS.add(getChatsDTO(chat, allChatsByTelephoneNumber));
+        }
+        return new AllChatsResponse("", Response.successMessage, chatDTOS);
+    }
+
 
     public Response getAllChatsSubscribed(String requesterTelephoneNumber) {
         Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
@@ -94,7 +111,7 @@ public class ChatService {
         chatContactRepository.save(builtChatContact);
         return new Response("", Response.successMessage);
     }
-
+//TODO  пагинация
 
     private ChatDTO getChatsDTO(Chat chat, List<ChatContact> allChatsByTelephoneNumber) {
         return ChatDTO.builder()
