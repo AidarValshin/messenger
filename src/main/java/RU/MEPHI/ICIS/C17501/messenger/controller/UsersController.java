@@ -13,14 +13,22 @@ public class UsersController {
 
 
     @GetMapping
-    public Response getAllUsers(@RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
-        return userService.getAllUsers(requesterTelephoneNumber);
+    public Response getAllUsers(@RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                @RequestHeader("offsetPages") Integer offsetPages,
+                                @RequestHeader("sizeOfPage") Integer sizeOfPage) {
+        return userService.getAllUsers(requesterTelephoneNumber,offsetPages,sizeOfPage);
     }
 
     @GetMapping("/{telephoneNumber}")
     public Response getUserByTelephoneNumber(@PathVariable String telephoneNumber,
                                              @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
         return userService.getUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber);
+    }
+
+    @GetMapping("/byLogin")
+    public Response getAllUsersByLogin(@RequestHeader("login") String login,
+                                             @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
+        return userService.getAllUsersByLogin(requesterTelephoneNumber,login);
     }
 
 

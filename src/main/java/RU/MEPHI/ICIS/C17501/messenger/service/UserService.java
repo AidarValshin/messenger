@@ -8,6 +8,7 @@ import RU.MEPHI.ICIS.C17501.messenger.responce.Response;
 import RU.MEPHI.ICIS.C17501.messenger.responce.user.AllUsersResponse;
 import RU.MEPHI.ICIS.C17501.messenger.responce.user.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,12 +23,28 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
 
-    public Response getAllUsers(String requesterTelephoneNumber) {
+    public Response getAllUsers(String requesterTelephoneNumber, int offsetPages, int sizeOfPage) {
         Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
         if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
             return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
         }
-        List<UserProjection> allUsers = userRepository.findAllByProjection();
+        List<UserProjection> allUsers = userRepository.findAllByProjection(PageRequest.of(offsetPages, sizeOfPage));
+        ArrayList<UserDTO> userDTOS = new ArrayList<>(allUsers.size());
+        for (UserProjection user : allUsers) {
+            userDTOS.add(getUserDTO(user));
+        }
+        return new AllUsersResponse("", Response.successMessage, userDTOS);
+    }
+
+    public Response getAllUsersByLogin(String requesterTelephoneNumber, String login) {
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
+        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
+            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+        }
+        List<UserProjection> allUsers = userRepository.findAllByProjectionAndByLogin(login);
+        if (allUsers.isEmpty()) {
+            return new Response("Invalid login '" + login + "'", errorMessage);
+        }
         ArrayList<UserDTO> userDTOS = new ArrayList<>(allUsers.size());
         for (UserProjection user : allUsers) {
             userDTOS.add(getUserDTO(user));
