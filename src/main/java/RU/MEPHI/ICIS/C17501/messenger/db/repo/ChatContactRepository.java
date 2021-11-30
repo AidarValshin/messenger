@@ -10,7 +10,7 @@ import java.util.List;
 public interface ChatContactRepository extends JpaRepository<ChatContact, Long> {
     List<ChatContact> findAllByTelephoneNumber(String telephoneNumber);
 
-     List<ChatContact> findByTelephoneNumberAndIdChat(String telephoneNumber, Long chatId);
+    List<ChatContact> findByTelephoneNumberAndIdChat(String telephoneNumber, Long chatId);
 
 
 }

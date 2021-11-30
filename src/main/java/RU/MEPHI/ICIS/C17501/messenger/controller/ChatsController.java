@@ -13,12 +13,22 @@ public class ChatsController {
 
 
     @GetMapping
-    public Response getAllStreams(@RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
-        return chatService.getAllChats(requesterTelephoneNumber);
+    public Response getAllStreams(@RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                  @RequestHeader("offsetPages") Integer offsetPages,
+                                  @RequestHeader("sizeOfPage") Integer sizeOfPage) {
+        return chatService.getAllChats(requesterTelephoneNumber, offsetPages, sizeOfPage);
+    }
+
+    @GetMapping("/{chatName}")
+    public Response getAllStreamsByName(@RequestHeader("requester_authorization_number") String
+                                                requesterTelephoneNumber,
+                                        @PathVariable String chatName) {
+        return chatService.getAllChatsByName(requesterTelephoneNumber, chatName);
     }
 
     @GetMapping("/users/me/subscriptions")
-    public Response getAllChatsSubscribed(@RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
+    public Response getAllChatsSubscribed(@RequestHeader("requester_authorization_number") String
+                                                  requesterTelephoneNumber) {
         return chatService.getAllChatsSubscribed(requesterTelephoneNumber);
     }
 
