@@ -22,7 +22,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
                 " left join  messenger.roles r on m.id_role=r.id_role",nativeQuery = true)
     public List<ChatProjection> findAllByProjection(String telephoneNumber);
      */
-     List<Chat> findAll();
+    List<Chat> findAll();
 
     List<Chat> findAllByIdChatIn(Collection<Long> chats, Pageable pageable);
 
