@@ -60,7 +60,7 @@ public class ChatService {
     }
 
 
-    public Response getAllChatsSubscribed(String requesterTelephoneNumber) {
+    public Response getAllChatsSubscribed(String requesterTelephoneNumber, int offsetPages, int sizeOfPage) {
         Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
         if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
             return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
@@ -68,7 +68,7 @@ public class ChatService {
         List<ChatContact> allChatsByTelephoneNumber = chatContactRepository.findAllByTelephoneNumber(requesterTelephoneNumber);
         ArrayList<ChatDTO> chatDTOS = new ArrayList<>(allChatsByTelephoneNumber.size());
         List<Chat> allChatsByIdChatIn = chatRepository.findAllByIdChatIn(allChatsByTelephoneNumber.stream()
-                .map(ChatContact::getIdChat).collect(Collectors.toList()));
+                .map(ChatContact::getIdChat).collect(Collectors.toList()),PageRequest.of(offsetPages, sizeOfPage));
         for (Chat chat : allChatsByIdChatIn) {
             chatDTOS.add(getChatsDTO(chat));
         }
@@ -111,7 +111,6 @@ public class ChatService {
         chatContactRepository.save(builtChatContact);
         return new Response("", Response.successMessage);
     }
-//TODO  пагинация
 
     private ChatDTO getChatsDTO(Chat chat, List<ChatContact> allChatsByTelephoneNumber) {
         return ChatDTO.builder()

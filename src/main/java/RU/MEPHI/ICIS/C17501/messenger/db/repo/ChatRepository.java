@@ -1,6 +1,7 @@
 package RU.MEPHI.ICIS.C17501.messenger.db.repo;
 
 import RU.MEPHI.ICIS.C17501.messenger.db.dao.Chat;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,11 +22,10 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
                 " left join  messenger.roles r on m.id_role=r.id_role",nativeQuery = true)
     public List<ChatProjection> findAllByProjection(String telephoneNumber);
      */
-    public List<Chat> findAll();
+    List<Chat> findAll();
 
-    public List<Chat> findAllByIdChatIn(Collection<Long> chats);
+    List<Chat> findAllByIdChatIn(Collection<Long> chats, Pageable pageable);
 
-    public List<Chat> findAllByChatName(String chatName);
+    List<Chat> findAllByChatName(String chatName);
 
-    //TODO пагинация для всех и по имени
 }

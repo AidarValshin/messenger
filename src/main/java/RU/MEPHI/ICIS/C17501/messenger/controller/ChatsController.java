@@ -27,9 +27,11 @@ public class ChatsController {
     }
 
     @GetMapping("/users/me/subscriptions")
-    public Response getAllChatsSubscribed(@RequestHeader("requester_authorization_number") String
-                                                  requesterTelephoneNumber) {
-        return chatService.getAllChatsSubscribed(requesterTelephoneNumber);
+    public Response getAllChatsSubscribed(@RequestHeader("requester_authorization_number")
+                                                  String requesterTelephoneNumber,
+                                                @RequestHeader("offsetPages") Integer offsetPages,
+                                          @RequestHeader("sizeOfPage") Integer sizeOfPage) {
+        return chatService.getAllChatsSubscribed(requesterTelephoneNumber, offsetPages, sizeOfPage);
     }
 
 
