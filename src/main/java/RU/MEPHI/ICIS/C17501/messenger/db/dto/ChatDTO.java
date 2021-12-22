@@ -10,16 +10,22 @@ import lombok.*;
 @ToString
 @Builder
 public class ChatDTO {
+
     @JsonProperty(value = "avatar_url")
     private String photoUrl;
+
     @JsonProperty(value = "id")
     private Long id;
+
     @JsonProperty(value = "name")
     private String name;
+
     @JsonProperty(value = "last_message_date")
     private java.util.Date lastMessageDate;
+
     @JsonProperty(value = "last_message_id")
     private Long lastMessageId;
+
     @JsonProperty(value = "is_subscriber")
     private Boolean isSubscriber;
 }
