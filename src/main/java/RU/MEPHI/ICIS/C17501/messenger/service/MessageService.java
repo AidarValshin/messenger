@@ -5,6 +5,9 @@ import RU.MEPHI.ICIS.C17501.messenger.db.repo.MessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,19 +63,59 @@ public class MessageService {
         return messageRepository.findAll();
     }
 
+    /**
+     * Метод получения списка n новых сообщений для чата с id=chatId
+     * @param n какое количество новых сообщений нам нужно
+     * @param chatId в каком чате (с каким id) искать
+     * @return список из n сообщений из заданного chatId чата
+     */
+    public List<Message> getNewMessagesByChatId(Long n, Long chatId) {
+
+        final Page<Message> lastMessages = messageRepository
+                .findAllByIdChat(chatId, PageRequest.of(0, Math.toIntExact(n), Sort.by(Sort.Order.desc("lastChangesDate"))));
+        // TODO: сделать только в репозитории так, чтобы ещё и по id искал
+        return lastMessages.getContent();
+    }
+
+    public List<Message> getAllInChatByWindow(Long chatId, Long messageId, Long numBefore, Long numAfter) {
+        return messageRepository.findAllInChatByWindow(chatId, messageId, numBefore, numAfter);
+    }
+
+    /**
+     * Метод получения всех сообщений из чата
+     * @param chatId id чата, из которого получаем сообщения
+     * @return список сообщений чата
+     */
     public List<Message> getMessagesByChatId(Long chatId) {
         return messageRepository.findAllByIdChat(chatId);
     }
 
+    /**
+     * Метод получения сообщения по id
+     * @param messageId id сообщения
+     * @return сообщение, которое требовалось найти
+     */
     public Message getMessageById(Long messageId) {
         return messageRepository.getById(messageId);
     }
 
+    /**
+     * Метод получения всех сообщений для пользователя с заданным телефонным номером
+     * @param requesterTelephoneNumber номер пользователя
+     * @return список всех сообщений для пользователя с данным номером
+     */
     public List<Message> getAllMessagesForClient(String requesterTelephoneNumber) {
         return null;
     }
 
+    /**
+     * Поиск списка сообщений для данного чата по ключевому слову
+     * @param chatId id чата, в котором ищем
+     * @param content по какому ключевому слову ищем
+     * @return список найденных сообщений по данному ключевому слову в данном чате
+     */
     public List<Message> findChatMessagesByContent(Long chatId, String content) {
+        // TODO: дёргаем метод из MessageRepository, в котором LIKE(content). !!!!!!!!!!!!!!!!!!!!!
         // TODO: поиск сообщений по краткому содержанию: ПОИСК ВНУТРИ ЧАТА
         // TODO: дёргаем метод MessageRepository, в котором join для нужных чатов и дальше
         //  поиск нужного контента

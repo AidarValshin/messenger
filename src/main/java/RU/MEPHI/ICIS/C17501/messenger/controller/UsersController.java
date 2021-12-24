@@ -6,12 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.errorMessage;
-import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.successMessage;
 
 @RestController
 @RequestMapping("/users")
