@@ -10,8 +10,6 @@ import java.util.List;
 
 @Setter
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class MessageListResponse extends Response implements Serializable {
 
     @JsonProperty(value = "anchor", required = true)
@@ -20,4 +18,9 @@ public class MessageListResponse extends Response implements Serializable {
     @JsonProperty(value = "messages", required = true)
     private List<OutgoingMessageDTO> outgoingMessageDTOList;
 
+    public MessageListResponse(String message, String result, Long anchorId, List<OutgoingMessageDTO> outgoingMessageDTOList) {
+        super(message, result);
+        this.anchor = anchorId;
+        this.outgoingMessageDTOList = outgoingMessageDTOList;
+    }
 }

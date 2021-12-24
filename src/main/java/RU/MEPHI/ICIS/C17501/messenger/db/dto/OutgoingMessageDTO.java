@@ -17,7 +17,7 @@ public class OutgoingMessageDTO implements Serializable {
     @JsonProperty(value = "content")
     private String content;
 
-    @JsonProperty(value = "id")
+    @JsonProperty(value = "message_id")
     private Long messageId;
 
     @JsonProperty(value = "sender_full_name")
@@ -27,5 +27,5 @@ public class OutgoingMessageDTO implements Serializable {
     private String senderId;  // // помним, что senderId = telephoneNumber
 
     @JsonProperty(value = "timestamp")
-    Timestamp timestamp;
+    Long timestamp;
 }
