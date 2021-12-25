@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import java.io.Serializable;
 
 public class RoleUserPK implements Serializable {
+
     @Column(nullable = false)
     private Long idRole;
 

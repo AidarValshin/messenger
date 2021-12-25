@@ -65,13 +65,13 @@ CREATE INDEX user_roles_users_mapping_idx
 ON messenger.roles_users_mapping( telephone_number);
 
     create table messenger.user_credentials (
-       login varchar(20) not null,
+       telephone_number varchar(20) not null,
         password varchar(50) not null,
-        primary key (login)
+        primary key (telephone_number)
     )
 ;
 CREATE INDEX login_user_credentials_idx
-ON messenger.user_credentials(login);
+ON messenger.user_credentials(telephone_number);
 
     create table messenger.users (
        telephone_number varchar(20) not null,
@@ -143,5 +143,5 @@ ON messenger.users(second_name);
 
     alter table if exists messenger.users
        add constraint FK2oq7g3lh6kjiv3qsoec3oli0m
-       foreign key (login)
+       foreign key (telephone_number)
        references messenger.user_credentials ;
