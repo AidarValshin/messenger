@@ -68,7 +68,7 @@ public class ChatService {
         List<ChatContact> allChatsByTelephoneNumber = chatContactRepository.findAllByTelephoneNumber(requesterTelephoneNumber);
         ArrayList<ChatDTO> chatDTOS = new ArrayList<>(allChatsByTelephoneNumber.size());
         List<Chat> allChatsByIdChatIn = chatRepository.findAllByIdChatIn(allChatsByTelephoneNumber.stream()
-                .map(ChatContact::getIdChat).collect(Collectors.toList()),PageRequest.of(offsetPages, sizeOfPage));
+                .map(ChatContact::getIdChat).collect(Collectors.toList()), PageRequest.of(offsetPages, sizeOfPage));
         for (Chat chat : allChatsByIdChatIn) {
             chatDTOS.add(getChatsDTO(chat));
         }

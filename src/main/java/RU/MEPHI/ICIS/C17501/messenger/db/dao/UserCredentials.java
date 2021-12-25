@@ -19,7 +19,7 @@ public class UserCredentials {
     private String login;
 
     @Column(nullable = false, length = 50)
-    @Length(max = 50,min=10)
+    @Length(max = 50, min = 10)
     private String password;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

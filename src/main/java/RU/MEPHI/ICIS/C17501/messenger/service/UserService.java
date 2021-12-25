@@ -33,16 +33,16 @@ import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.successMessage;
 @Service
 public class UserService {
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     RoleRepository roleRepository;
+    @Autowired
+    private UserRepository userRepository;
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-    private MessageDigest md5 ;
+    private MessageDigest md5;
 
     @SneakyThrows
     @PostConstruct
-    private void postConstruct(){
-        md5= MessageDigest.getInstance("md5");
+    private void postConstruct() {
+        md5 = MessageDigest.getInstance("md5");
     }
 
     public Response getAllUsers(String requesterTelephoneNumber, int offsetPages, int sizeOfPage) {
@@ -188,7 +188,7 @@ public class UserService {
                 .userCredentials(userCredentials)
                 .isDeleted(false)
                 .isLocked(false)
-                .roles(roleRepository.findById(1l).stream().collect(Collectors.toSet()))
+                .roles(roleRepository.findById(1L).stream().collect(Collectors.toSet()))
                 .build();
         Set<ConstraintViolation<UserCredentials>> validationResultsUserCredentials = validator.validate(userCredentials);
         Set<ConstraintViolation<User>> validationResultsUser = validator.validate(user);
