@@ -33,10 +33,13 @@ import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.successMessage;
 
 @Service
 public class UserService {
+
     @Autowired
     private RoleRepository roleRepository;
+
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private UserCredentialsRepository userCredentialsRepository;
 
@@ -49,8 +52,9 @@ public class UserService {
         md5 = MessageDigest.getInstance("md5");
     }
 
-    public Response getAllUsers(String requesterTelephoneNumber, int offsetPages, int sizeOfPage ,String password) {
-        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+    public Response getAllUsers(String requesterTelephoneNumber, int offsetPages,
+                                int sizeOfPage, String password) {
+        if (!checkCredentialsInRequests(requesterTelephoneNumber,password)) {
             return new Response("Invalid credentials", errorMessage);
         }
         List<UserProjection> allUsers = userRepository.findAllByProjection(PageRequest.of(offsetPages, sizeOfPage));
@@ -61,23 +65,27 @@ public class UserService {
         return new AllUsersResponse("", Response.successMessage, userDTOS);
     }
 
-    public Response getAllUsersByLogin(String requesterTelephoneNumber, String login,String password) {
-        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+    public Response getAllUsersByLogin(String requesterTelephoneNumber, String login, String password) {
+        if (!checkCredentialsInRequests(requesterTelephoneNumber, password)) {
             return new Response("Invalid credentials", errorMessage);
         }
-        List<UserProjection> allUsers = userRepository.findAllByProjectionAndByLogin(login);
+        // TODO: не совсем понял, зачем тут танцы с бубном: нам же просто нужно достать по login-у из таблицы users
+        // List<UserProjection> allUsers = userRepository.findAllByProjectionAndByLogin(login);
+        List<User> allUsers = userRepository.findAllByLogin(login);
         if (allUsers.isEmpty()) {
             return new Response("Invalid login '" + login + "'", errorMessage);
         }
         ArrayList<UserDTO> userDTOS = new ArrayList<>(allUsers.size());
-        for (UserProjection user : allUsers) {
+        for (User user : allUsers) {
             userDTOS.add(getUserDTO(user));
         }
         return new AllUsersResponse("", Response.successMessage, userDTOS);
     }
 
-    public Response getUserByTelephoneNumber(String telephoneNumber, String requesterTelephoneNumber,String password) {
-        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+    public Response getUserByTelephoneNumber(String telephoneNumber,
+                                             String requesterTelephoneNumber,
+                                             String password) {
+        if (!checkCredentialsInRequests(requesterTelephoneNumber, password)) {
             return new Response("Invalid credentials", errorMessage);
         }
         Optional<User> optionalUserByTelephoneNumber = userRepository.findById(telephoneNumber);
@@ -89,8 +97,10 @@ public class UserService {
         return new Response("Invalid user phone_number '" + telephoneNumber + "'", errorMessage);
     }
 
-    public Response blockUserByTelephoneNumber(String targetTelephoneNumber, String requesterTelephoneNumber, String password) {
-        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+    public Response blockUserByTelephoneNumber(String targetTelephoneNumber,
+                                               String requesterTelephoneNumber,
+                                               String password) {
+        if (!checkCredentialsInRequests(requesterTelephoneNumber, password)) {
             return new Response("Invalid credentials", errorMessage);
         }
         Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
@@ -140,7 +150,6 @@ public class UserService {
                 .build();
     }
 
-
     private UserDTO getUserDTO(User user) {
         return UserDTO.builder()
                 .photoUrl(user.getPhotoUrl() != null ? user.getPhotoUrl() : "")
@@ -173,7 +182,7 @@ public class UserService {
         }
         String passHash = getPassHash(password);
         UserCredentials userCredentials = UserCredentials.builder()
-                .login(login)
+                .telephoneNumber(telephoneNumber)
                 .password(passHash)
                 .build();
         User user = User.builder()
@@ -199,12 +208,11 @@ public class UserService {
         return new Response("User is registered", successMessage);
     }
 
-    public Response checkCredentials(String login, String password) {
-        Optional<UserCredentials> optionalUserCredentials = userCredentialsRepository.findById(login);
+    public Response checkCredentials(String telephoneNumber, String password) {
+        Optional<UserCredentials> optionalUserCredentials = userCredentialsRepository.findById(telephoneNumber);
         if (optionalUserCredentials.isPresent()) {
             UserCredentials userCredentials = optionalUserCredentials.get();
-            if(getPassHash(password).equals(userCredentials.getPassword()))
-            {
+            if (getPassHash(password).equals(userCredentials.getPassword())) {
                 return new Response("Right credentials", successMessage);
             }
         }
@@ -217,8 +225,7 @@ public class UserService {
             return false;
         }
         UserCredentials userCredentials = optionalRequesterUserByTelephoneNumber.get().getUserCredentials();
-            if(getPassHash(password).equals(userCredentials.getPassword()))
-            {
+            if (getPassHash(password).equals(userCredentials.getPassword())) {
                 return true;
             }
         return false;
@@ -227,8 +234,6 @@ public class UserService {
     private String getPassHash(String password) {
         md5.update(password.getBytes());
         byte[] digest = md5.digest();
-        String passHash = DatatypeConverter
-                .printHexBinary(digest).toUpperCase();
-        return passHash;
+        return DatatypeConverter.printHexBinary(digest).toUpperCase();
     }
 }

@@ -103,7 +103,7 @@ public class MessagesController {
                                            @RequestHeader(value = "requester_authorization_number") String senderTelNumber,
                                            @RequestHeader("pass") String password )
             throws JsonProcessingException {
-        if(!userService.checkCredentialsInRequests(senderTelNumber,password)){
+        if (!userService.checkCredentialsInRequests(senderTelNumber,password)) {
             return new Response("Invalid credentials", errorMessage);
         }
         // Получаем условия фильтрации
@@ -140,8 +140,6 @@ public class MessagesController {
                         )
                     .collect(Collectors.toList());
         }
-        // TODO: добавить САМУ ФИЛЬТРАЦИЮ
-        // TODO: sender_id = 7 ? - у нас id юзера - его моб. номер!)
 
         return new MessageListResponse("", Response.successMessage, anchorMessageId, outgoingMessageDTOS);
     }
