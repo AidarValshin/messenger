@@ -1,9 +1,5 @@
 package RU.MEPHI.ICIS.C17501.messenger.db.dto;
 
-import lombok.*;
-
-import java.io.Serializable;
-
 /*@Getter
 @Setter
 @NoArgsConstructor

@@ -15,15 +15,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         */
 /**
-         * Префикс приложения
-         *//*
+ * Префикс приложения
+ * <p>
+ * Префикс STOMP-endpoint-а
+ *//*
 
         private static final String MESSENGER = "/messenger";
 
         */
 /**
-         * Префикс STOMP-endpoint-а
-         *//*
+ * Префикс STOMP-endpoint-а
+ *//*
 
         private static final String WS_STOMP_ENDPOINT_PREFIX = "/ws";
     }
