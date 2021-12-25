@@ -60,6 +60,12 @@ public class UsersController {
                  secondName,  dateOfBirth,  gender,  password);
     }
 
+    @PostMapping("/authorize")
+    public Response checkCredentials( @RequestHeader("login") String login,
+                                  @RequestHeader("pass") String password ) {
+        return userService.checkCredentials(  login,password);
+    }
+
     @PostMapping(value = "/upload/avatar",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})

@@ -5,6 +5,7 @@ import RU.MEPHI.ICIS.C17501.messenger.db.dao.UserCredentials;
 import RU.MEPHI.ICIS.C17501.messenger.db.dto.UserDTO;
 import RU.MEPHI.ICIS.C17501.messenger.db.projection.UserProjection;
 import RU.MEPHI.ICIS.C17501.messenger.db.repo.RoleRepository;
+import RU.MEPHI.ICIS.C17501.messenger.db.repo.UserCredentialsRepository;
 import RU.MEPHI.ICIS.C17501.messenger.db.repo.UserRepository;
 import RU.MEPHI.ICIS.C17501.messenger.responce.Response;
 import RU.MEPHI.ICIS.C17501.messenger.responce.user.AllUsersResponse;
@@ -33,9 +34,12 @@ import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.successMessage;
 @Service
 public class UserService {
     @Autowired
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserCredentialsRepository userCredentialsRepository;
+
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     private MessageDigest md5;
 
@@ -170,10 +174,7 @@ public class UserService {
         if (!userRepository.findByLogin(login).isEmpty()) {
             return new Response("User with this login already exists", errorMessage);
         }
-        md5.update(password.getBytes());
-        byte[] digest = md5.digest();
-        String passHash = DatatypeConverter
-                .printHexBinary(digest).toUpperCase();
+        String passHash = getPassHash(password);
         UserCredentials userCredentials = UserCredentials.builder()
                 .login(login)
                 .password(passHash)
@@ -199,5 +200,25 @@ public class UserService {
         }
         userRepository.save(user);
         return new Response("User is registered", successMessage);
+    }
+
+    public Response checkCredentials(String login, String password) {
+        Optional<UserCredentials> optionalUserCredentials = userCredentialsRepository.findById(login);
+        if (optionalUserCredentials.isPresent()) {
+            UserCredentials userCredentials = optionalUserCredentials.get();
+            if(getPassHash(password).equals(userCredentials.getPassword()))
+            {
+                return new Response("Right credentials", successMessage);
+            }
+        }
+        return new Response("Invalid credentials", errorMessage);
+    }
+
+    private String getPassHash(String password) {
+        md5.update(password.getBytes());
+        byte[] digest = md5.digest();
+        String passHash = DatatypeConverter
+                .printHexBinary(digest).toUpperCase();
+        return passHash;
     }
 }
