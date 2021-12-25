@@ -6,18 +6,18 @@ values
 
 insert into messenger.user_credentials
 values
-('VerstovDanilaaaa','Password1','Token1'),
-('ValshinAidaaaaaaar','Password2','Token2'),
-('KarpenkoDimaaaa','Password3','Token3'),
-('KopekovNazaraaar','Password4','Token4'),
-('KoromyslovAleksandr','Password5','Token5'),
-('KuznetsovKiriiiiil','Password6','Token6'),
-('SofronovIvaaaan','Password7','Token7'),
-('SaprykinaVasilinaaaa','Password8','Token8'),
-('AdminAdmiiin','Password9','Token9'),
-('AdminAdmiiin1','Password10','Token10'),
-('AdminAdmiiin2','Password11','Token11'),
-('AdminAdmiiin3','Password12','Token12');
+('VerstovDanilaaaa','1A1DC91C907325C69271DDF0C944BC72'),
+('ValshinAidaaaaaaar','1A1DC91C907325C69271DDF0C944BC72'),
+('KarpenkoDimaaaa','1A1DC91C907325C69271DDF0C944BC72'),
+('KopekovNazaraaar','1A1DC91C907325C69271DDF0C944BC72'),
+('KoromyslovAleksandr','1A1DC91C907325C69271DDF0C944BC72'),
+('KuznetsovKiriiiiil','1A1DC91C907325C69271DDF0C944BC72'),
+('SofronovIvaaaan','1A1DC91C907325C69271DDF0C944BC72'),
+('SaprykinaVasilinaaaa','1A1DC91C907325C69271DDF0C944BC72'),
+('AdminAdmiiin','1A1DC91C907325C69271DDF0C944BC72'),
+('AdminAdmiiin1','1A1DC91C907325C69271DDF0C944BC72'),
+('AdminAdmiiin2','1A1DC91C907325C69271DDF0C944BC72'),
+('AdminAdmiiin3','1A1DC91C907325C69271DDF0C944BC72');
 
 insert into messenger.users
 values ('89370000001','22/01/2000','Aidar','m',false,false,'ValshinAidaaaaaaar',null,'Valshin'),

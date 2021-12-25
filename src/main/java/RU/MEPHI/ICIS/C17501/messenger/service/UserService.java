@@ -1,20 +1,32 @@
 package RU.MEPHI.ICIS.C17501.messenger.service;
 
 import RU.MEPHI.ICIS.C17501.messenger.db.dao.User;
+import RU.MEPHI.ICIS.C17501.messenger.db.dao.UserCredentials;
 import RU.MEPHI.ICIS.C17501.messenger.db.dto.UserDTO;
 import RU.MEPHI.ICIS.C17501.messenger.db.projection.UserProjection;
+import RU.MEPHI.ICIS.C17501.messenger.db.repo.RoleRepository;
+import RU.MEPHI.ICIS.C17501.messenger.db.repo.UserCredentialsRepository;
 import RU.MEPHI.ICIS.C17501.messenger.db.repo.UserRepository;
 import RU.MEPHI.ICIS.C17501.messenger.responce.Response;
 import RU.MEPHI.ICIS.C17501.messenger.responce.user.AllUsersResponse;
 import RU.MEPHI.ICIS.C17501.messenger.responce.user.UserResponse;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
+import javax.annotation.PostConstruct;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.xml.bind.DatatypeConverter;
+import java.security.MessageDigest;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.errorMessage;
 import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.successMessage;
@@ -22,12 +34,24 @@ import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.successMessage;
 @Service
 public class UserService {
     @Autowired
-    UserRepository userRepository;
+    private RoleRepository roleRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private UserCredentialsRepository userCredentialsRepository;
 
-    public Response getAllUsers(String requesterTelephoneNumber, int offsetPages, int sizeOfPage) {
-        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
-        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
-            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+    private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    private MessageDigest md5;
+
+    @SneakyThrows
+    @PostConstruct
+    private void postConstruct() {
+        md5 = MessageDigest.getInstance("md5");
+    }
+
+    public Response getAllUsers(String requesterTelephoneNumber, int offsetPages, int sizeOfPage ,String password) {
+        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+            return new Response("Invalid credentials", errorMessage);
         }
         List<UserProjection> allUsers = userRepository.findAllByProjection(PageRequest.of(offsetPages, sizeOfPage));
         ArrayList<UserDTO> userDTOS = new ArrayList<>(allUsers.size());
@@ -37,10 +61,9 @@ public class UserService {
         return new AllUsersResponse("", Response.successMessage, userDTOS);
     }
 
-    public Response getAllUsersByLogin(String requesterTelephoneNumber, String login) {
-        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
-        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
-            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+    public Response getAllUsersByLogin(String requesterTelephoneNumber, String login,String password) {
+        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+            return new Response("Invalid credentials", errorMessage);
         }
         List<UserProjection> allUsers = userRepository.findAllByProjectionAndByLogin(login);
         if (allUsers.isEmpty()) {
@@ -53,10 +76,9 @@ public class UserService {
         return new AllUsersResponse("", Response.successMessage, userDTOS);
     }
 
-    public Response getUserByTelephoneNumber(String telephoneNumber, String requesterTelephoneNumber) {
-        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
-        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
-            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+    public Response getUserByTelephoneNumber(String telephoneNumber, String requesterTelephoneNumber,String password) {
+        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+            return new Response("Invalid credentials", errorMessage);
         }
         Optional<User> optionalUserByTelephoneNumber = userRepository.findById(telephoneNumber);
         if (optionalUserByTelephoneNumber.isPresent()) {
@@ -67,11 +89,11 @@ public class UserService {
         return new Response("Invalid user phone_number '" + telephoneNumber + "'", errorMessage);
     }
 
-    public Response blockUserByTelephoneNumber(String targetTelephoneNumber, String requesterTelephoneNumber) {
-        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
-        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
-            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+    public Response blockUserByTelephoneNumber(String targetTelephoneNumber, String requesterTelephoneNumber, String password) {
+        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+            return new Response("Invalid credentials", errorMessage);
         }
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
         User userRequester = optionalRequesterUserByTelephoneNumber.get();
         if (!isAdmin(userRequester)) {
             return new Response("You are not admin", errorMessage);
@@ -138,6 +160,75 @@ public class UserService {
         if (user.isEmpty()) {
             // TODO: логгируем
         }
-         return user.get();
+        return user.get();
+    }
+
+    public Response createNewUser(String telephoneNumber, String login, String firstName,
+                                  String secondName, Date dateOfBirth, String gender, String password) {
+        if (userRepository.findById(telephoneNumber).isPresent()) {
+            return new Response("User with this telephone number already exists", errorMessage);
+        }
+        if (!userRepository.findByLogin(login).isEmpty()) {
+            return new Response("User with this login already exists", errorMessage);
+        }
+        String passHash = getPassHash(password);
+        UserCredentials userCredentials = UserCredentials.builder()
+                .login(login)
+                .password(passHash)
+                .build();
+        User user = User.builder()
+                .telephoneNumber(telephoneNumber)
+                .login(login)
+                .firstName(firstName)
+                .secondName(secondName)
+                .dateOfBirth(dateOfBirth)
+                .gender(gender)
+                .userCredentials(userCredentials)
+                .isDeleted(false)
+                .isLocked(false)
+                .roles(roleRepository.findById(1L).stream().collect(Collectors.toSet()))
+                .build();
+        Set<ConstraintViolation<UserCredentials>> validationResultsUserCredentials = validator.validate(userCredentials);
+        Set<ConstraintViolation<User>> validationResultsUser = validator.validate(user);
+        if (!validationResultsUserCredentials.isEmpty() || !validationResultsUser.isEmpty()) {
+            String validationResult = validationResultsUser.stream().map(r -> r.getPropertyPath() + ":" + r.getMessage()).collect(Collectors.joining(", ")) +
+                    validationResultsUserCredentials.stream().map(r -> r.getPropertyPath() + ":" + r.getMessage()).collect(Collectors.joining(", "));
+            return new Response(validationResult, errorMessage);
+        }
+        userRepository.save(user);
+        return new Response("User is registered", successMessage);
+    }
+
+    public Response checkCredentials(String login, String password) {
+        Optional<UserCredentials> optionalUserCredentials = userCredentialsRepository.findById(login);
+        if (optionalUserCredentials.isPresent()) {
+            UserCredentials userCredentials = optionalUserCredentials.get();
+            if(getPassHash(password).equals(userCredentials.getPassword()))
+            {
+                return new Response("Right credentials", successMessage);
+            }
+        }
+        return new Response("Invalid credentials", errorMessage);
+    }
+
+    public boolean checkCredentialsInRequests(String requesterTelephoneNumber, String password) {
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
+        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
+            return false;
+        }
+        UserCredentials userCredentials = optionalRequesterUserByTelephoneNumber.get().getUserCredentials();
+            if(getPassHash(password).equals(userCredentials.getPassword()))
+            {
+                return true;
+            }
+        return false;
+    }
+
+    private String getPassHash(String password) {
+        md5.update(password.getBytes());
+        byte[] digest = md5.digest();
+        String passHash = DatatypeConverter
+                .printHexBinary(digest).toUpperCase();
+        return passHash;
     }
 }

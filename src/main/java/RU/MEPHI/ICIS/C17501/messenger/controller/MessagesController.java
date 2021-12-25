@@ -8,6 +8,7 @@ import RU.MEPHI.ICIS.C17501.messenger.responce.Response;
 import RU.MEPHI.ICIS.C17501.messenger.responce.message.MessageListResponse;
 import RU.MEPHI.ICIS.C17501.messenger.service.ChatService;
 import RU.MEPHI.ICIS.C17501.messenger.service.MessageService;
+import RU.MEPHI.ICIS.C17501.messenger.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.errorMessage;
 
 /**
  * Контроллер для организации обмена сообщений между клиентами.
@@ -38,7 +41,11 @@ public class MessagesController {
      * Сервис для связки сообщений с чатами
      */
     ChatService chatService;
-
+    /**
+     * Сервис для проверки авторизации
+     */
+    @Autowired
+    UserService userService;
     /**
      * Класс для чтения JSON-форматированных данных
      */
@@ -63,8 +70,11 @@ public class MessagesController {
     @PostMapping("/messages")
     public Response sendMessage(@RequestParam(value = "to") Long targetChatId,
                                 @RequestParam(value = "content") String messageContent,
-                                @RequestHeader(value = "requester_authorization_number") String senderTelNumber) {
-
+                                @RequestHeader(value = "requester_authorization_number") String senderTelNumber,
+                                @RequestHeader("pass") String password ) {
+        if(!userService.checkCredentialsInRequests(senderTelNumber,password)){
+            return new Response("Invalid credentials", errorMessage);
+        }
         // Сохраняем сообщение в БД
         Message message = messageService.createMessage(targetChatId, messageContent, senderTelNumber);
 
@@ -86,12 +96,16 @@ public class MessagesController {
      * @throws JsonProcessingException исключение, возникающее при попытке маппинга условий фильтрации в DTO
      */
     @GetMapping("/messages")
-    public MessageListResponse getMessages(@RequestParam(value = "anchor", required = false) Long anchorMessageId,
+    public Response getMessages(@RequestParam(value = "anchor", required = false) Long anchorMessageId,
                                                 @RequestParam(value = "num_before") Long numBefore,
                                                 @RequestParam(value = "num_after") Long numAfter,
-                                                @RequestParam(value = "narrow") String filterConditions)
+                                                @RequestParam(value = "narrow") String filterConditions,
+                                           @RequestHeader(value = "requester_authorization_number") String senderTelNumber,
+                                           @RequestHeader("pass") String password )
             throws JsonProcessingException {
-
+        if(!userService.checkCredentialsInRequests(senderTelNumber,password)){
+            return new Response("Invalid credentials", errorMessage);
+        }
         // Получаем условия фильтрации
         String jsonFromFilterConditions = filterConditions.substring(1, filterConditions.length()-1);
         NarrowDTO narrowDTO = objectMapper.readValue(jsonFromFilterConditions, NarrowDTO.class);

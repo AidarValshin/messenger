@@ -57,7 +57,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "\t\t\tanchor.text\n" +
             "\t   FROM anchor_message AS anchor)\n" +
             "\t   ORDER BY date;", nativeQuery = true)
-    public List<Message> findAllInChatByWindow(Long chatId, Long anchorId, Long numBefore, Long numAfter);
+    List<Message> findAllInChatByWindow(Long chatId, Long anchorId, Long numBefore, Long numAfter);
 
     Page<Message> findAllByIdChat(Long chatId, Pageable pageable);
 

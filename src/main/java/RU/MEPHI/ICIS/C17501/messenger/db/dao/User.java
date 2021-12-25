@@ -2,6 +2,7 @@ package RU.MEPHI.ICIS.C17501.messenger.db.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -14,6 +15,7 @@ import java.util.Set;
 @ToString
 @Table(name = "users")
 @Entity
+@Builder
 public class User {
 
     @JsonIgnore
@@ -26,22 +28,28 @@ public class User {
     Set<Role> roles;
     @Id
     @Column(length = 20)
+    @Length(max = 20, min = 11)
     private String telephoneNumber;
     @Column(nullable = false, length = 20)
+    @Length(max = 20, min = 3)
     private String login;
     @Column(nullable = false, length = 20)
+    @Length(max = 20, min = 3)
     private String firstName;
     @Column(nullable = false, length = 20)
+    @Length(max = 20, min = 3)
     private String secondName;
     @Column(nullable = false)
     private Date dateOfBirth;
     @Column(length = 200)
+    @Length(max = 200)
     private String photoUrl;
     @Column(nullable = false)
     private Boolean isDeleted;
     @Column(nullable = false)
     private Boolean isLocked;
     @Column(nullable = false, length = 1)
+    @Length(max = 1, min = 1)
     private String gender;
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
