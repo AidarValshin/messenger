@@ -25,27 +25,31 @@ public class UsersController {
     @GetMapping
     public Response getAllUsers(@RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
                                 @RequestHeader("offsetPages") Integer offsetPages,
-                                @RequestHeader("sizeOfPage") Integer sizeOfPage) {
-        return userService.getAllUsers(requesterTelephoneNumber,offsetPages,sizeOfPage);
+                                @RequestHeader("sizeOfPage") Integer sizeOfPage,
+                                @RequestHeader("pass") String password) {
+        return userService.getAllUsers(requesterTelephoneNumber,offsetPages,sizeOfPage,password);
     }
 
     @GetMapping("/{telephoneNumber}")
     public Response getUserByTelephoneNumber(@PathVariable String telephoneNumber,
-                                             @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
-        return userService.getUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber);
+                                             @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                             @RequestHeader("pass") String password) {
+        return userService.getUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber,password);
     }
 
     @GetMapping("/byLogin")
     public Response getAllUsersByLogin(@RequestHeader("login") String login,
-                                             @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
-        return userService.getAllUsersByLogin(requesterTelephoneNumber,login);
+                                             @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                       @RequestHeader("pass") String password) {
+        return userService.getAllUsersByLogin(requesterTelephoneNumber,login,password);
     }
 
 
     @PostMapping("/{telephoneNumber}/block")
     public Response blockUserByTelephoneNumber(@PathVariable String telephoneNumber,
-                                               @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
-        return userService.blockUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber);
+                                               @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                               @RequestHeader("pass") String password) {
+        return userService.blockUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber,password);
     }
 
     @PostMapping("/register")
@@ -58,6 +62,12 @@ public class UsersController {
                                   @RequestHeader("pass") String password ) {
         return userService.createNewUser( telephoneNumber,  login,  firstName,
                  secondName,  dateOfBirth,  gender,  password);
+    }
+
+    @PostMapping("/authorize")
+    public Response checkCredentials( @RequestHeader("login") String login,
+                                  @RequestHeader("pass") String password ) {
+        return userService.checkCredentials(  login,password);
     }
 
     @PostMapping(value = "/upload/avatar",
