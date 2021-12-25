@@ -49,10 +49,9 @@ public class UserService {
         md5 = MessageDigest.getInstance("md5");
     }
 
-    public Response getAllUsers(String requesterTelephoneNumber, int offsetPages, int sizeOfPage) {
-        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
-        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
-            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+    public Response getAllUsers(String requesterTelephoneNumber, int offsetPages, int sizeOfPage ,String password) {
+        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+            return new Response("Invalid credentials", errorMessage);
         }
         List<UserProjection> allUsers = userRepository.findAllByProjection(PageRequest.of(offsetPages, sizeOfPage));
         ArrayList<UserDTO> userDTOS = new ArrayList<>(allUsers.size());
@@ -62,10 +61,9 @@ public class UserService {
         return new AllUsersResponse("", Response.successMessage, userDTOS);
     }
 
-    public Response getAllUsersByLogin(String requesterTelephoneNumber, String login) {
-        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
-        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
-            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+    public Response getAllUsersByLogin(String requesterTelephoneNumber, String login,String password) {
+        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+            return new Response("Invalid credentials", errorMessage);
         }
         List<UserProjection> allUsers = userRepository.findAllByProjectionAndByLogin(login);
         if (allUsers.isEmpty()) {
@@ -78,10 +76,9 @@ public class UserService {
         return new AllUsersResponse("", Response.successMessage, userDTOS);
     }
 
-    public Response getUserByTelephoneNumber(String telephoneNumber, String requesterTelephoneNumber) {
-        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
-        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
-            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+    public Response getUserByTelephoneNumber(String telephoneNumber, String requesterTelephoneNumber,String password) {
+        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+            return new Response("Invalid credentials", errorMessage);
         }
         Optional<User> optionalUserByTelephoneNumber = userRepository.findById(telephoneNumber);
         if (optionalUserByTelephoneNumber.isPresent()) {
@@ -92,11 +89,11 @@ public class UserService {
         return new Response("Invalid user phone_number '" + telephoneNumber + "'", errorMessage);
     }
 
-    public Response blockUserByTelephoneNumber(String targetTelephoneNumber, String requesterTelephoneNumber) {
-        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
-        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
-            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+    public Response blockUserByTelephoneNumber(String targetTelephoneNumber, String requesterTelephoneNumber, String password) {
+        if(!checkCredentialsInRequests(requesterTelephoneNumber,password)){
+            return new Response("Invalid credentials", errorMessage);
         }
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
         User userRequester = optionalRequesterUserByTelephoneNumber.get();
         if (!isAdmin(userRequester)) {
             return new Response("You are not admin", errorMessage);
@@ -212,6 +209,19 @@ public class UserService {
             }
         }
         return new Response("Invalid credentials", errorMessage);
+    }
+
+    public boolean checkCredentialsInRequests(String requesterTelephoneNumber, String password) {
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
+        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
+            return false;
+        }
+        UserCredentials userCredentials = optionalRequesterUserByTelephoneNumber.get().getUserCredentials();
+            if(getPassHash(password).equals(userCredentials.getPassword()))
+            {
+                return true;
+            }
+        return false;
     }
 
     private String getPassHash(String password) {
