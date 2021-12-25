@@ -67,7 +67,6 @@ ON messenger.roles_users_mapping( telephone_number);
     create table messenger.user_credentials (
        login varchar(20) not null,
         password varchar(50) not null,
-        token varchar(500) not null,
         primary key (login)
     )
 ;

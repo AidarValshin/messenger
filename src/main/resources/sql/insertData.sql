@@ -6,18 +6,18 @@ values
 
 insert into messenger.user_credentials
 values
-('VerstovDanilaaaa','Password1','Token1'),
-('ValshinAidaaaaaaar','Password2','Token2'),
-('KarpenkoDimaaaa','Password3','Token3'),
-('KopekovNazaraaar','Password4','Token4'),
-('KoromyslovAleksandr','Password5','Token5'),
-('KuznetsovKiriiiiil','Password6','Token6'),
-('SofronovIvaaaan','Password7','Token7'),
-('SaprykinaVasilinaaaa','Password8','Token8'),
-('AdminAdmiiin','Password9','Token9'),
-('AdminAdmiiin1','Password10','Token10'),
-('AdminAdmiiin2','Password11','Token11'),
-('AdminAdmiiin3','Password12','Token12');
+('VerstovDanilaaaa','Password1'),
+('ValshinAidaaaaaaar','Password2'),
+('KarpenkoDimaaaa','Password3'),
+('KopekovNazaraaar','Password4'),
+('KoromyslovAleksandr','Password5'),
+('KuznetsovKiriiiiil','Password6'),
+('SofronovIvaaaan','Password7'),
+('SaprykinaVasilinaaaa','Password8'),
+('AdminAdmiiin','Password9'),
+('AdminAdmiiin1','Password10'),
+('AdminAdmiiin2','Password11'),
+('AdminAdmiiin3','Password12');
 
 insert into messenger.users
 values ('89370000001','22/01/2000','Aidar','m',false,false,'ValshinAidaaaaaaar',null,'Valshin'),

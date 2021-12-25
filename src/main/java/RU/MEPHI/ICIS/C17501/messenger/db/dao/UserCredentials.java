@@ -19,13 +19,9 @@ public class UserCredentials {
     @Column(nullable = false, length = 50)
     private String password;
 
-    @Column(nullable = false, length = 500)
-    private String token;
-
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "login", insertable = false, updatable = false)
     @ToString.Exclude
     private User user;
-
 
 }
