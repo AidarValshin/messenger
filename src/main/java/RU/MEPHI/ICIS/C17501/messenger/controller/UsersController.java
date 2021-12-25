@@ -5,9 +5,13 @@ import RU.MEPHI.ICIS.C17501.messenger.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.sql.Date;
 
 @RestController
 @RequestMapping("/users")
@@ -42,6 +46,18 @@ public class UsersController {
     public Response blockUserByTelephoneNumber(@PathVariable String telephoneNumber,
                                                @RequestHeader("requester_authorization_number") String requesterTelephoneNumber) {
         return userService.blockUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber);
+    }
+
+    @PostMapping("/register")
+    public Response registerUser( @RequestHeader("telephone_number") String telephoneNumber,
+                                  @RequestHeader("login") String login,
+                                  @RequestHeader("first_name") String firstName,
+                                  @RequestHeader("second_name") String secondName,
+                                  @RequestHeader("date_of_birth") Date dateOfBirth,
+                                  @RequestHeader("gender") String gender,
+                                  @RequestHeader("pass") String password ) {
+        return userService.createNewUser( telephoneNumber,  login,  firstName,
+                 secondName,  dateOfBirth,  gender,  password);
     }
 
     @PostMapping(value = "/upload/avatar",

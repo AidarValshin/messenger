@@ -40,4 +40,6 @@ public interface UserRepository extends JpaRepository<User, String> {
             " left join  messenger.roles r on m.id_role=r.id_role " +
             "where login = :login", nativeQuery = true)
 List<UserProjection>  findAllByProjectionAndByLogin(String login);
+
+    List<User> findByLogin(String login);
 }
