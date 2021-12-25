@@ -3,21 +3,19 @@ package RU.MEPHI.ICIS.C17501.messenger.controller;
 import RU.MEPHI.ICIS.C17501.messenger.db.dao.Message;
 import RU.MEPHI.ICIS.C17501.messenger.db.dto.NarrowDTO;
 import RU.MEPHI.ICIS.C17501.messenger.db.dto.OutgoingMessageDTO;
-import RU.MEPHI.ICIS.C17501.messenger.db.metadata.Operator;
 import RU.MEPHI.ICIS.C17501.messenger.responce.Response;
 import RU.MEPHI.ICIS.C17501.messenger.responce.message.MessageListResponse;
 import RU.MEPHI.ICIS.C17501.messenger.service.ChatService;
 import RU.MEPHI.ICIS.C17501.messenger.service.MessageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -47,7 +45,7 @@ public class MessagesController {
     @Autowired
     public MessagesController(MessageService messageService,
                               ObjectMapper objectMapper) {
-                                //SimpMessagingTemplate messagingTemplate) {
+        //SimpMessagingTemplate messagingTemplate) {
         this.messageService = messageService;
         //this.messagingTemplate = messagingTemplate;
         this.objectMapper = objectMapper;
@@ -55,8 +53,9 @@ public class MessagesController {
 
     /**
      * Метод отправки сообщения
-     * @param targetChatId id чата, куда отправляется сообщение
-     * @param messageContent тело сообщения
+     *
+     * @param targetChatId    id чата, куда отправляется сообщение
+     * @param messageContent  тело сообщения
      * @param senderTelNumber телефонный номер отправителя
      * @return стандартный ответ сервера об успехе операции
      */
@@ -78,56 +77,34 @@ public class MessagesController {
     /**
      * Метод получения сообщений.В случае наличия поля anchor - производится пагинация,
      * в случае отсутствия поля anchor - получение последних num_before новых сообщений
-     * @param anchorMessageId id сообщения относительно которого осуществляется поиск
-     * @param numBefore количество сообщений идущих до id anchor
-     * @param numAfter количество сообщений идущих после id anchor
+     *
+     * @param anchorMessageId  id сообщения относительно которого осуществляется поиск
+     * @param numBefore        количество сообщений идущих до id anchor
+     * @param numAfter         количество сообщений идущих после id anchor
      * @param filterConditions объект фильтрации, представляет собой  массив JSON пар типа ключ значение
      * @return запрашиваемый список сообщений
-     * @throws JsonProcessingException исключение, возникающее при попытке маппинга условий фильтрации в DTO
      */
     @GetMapping("/messages")
     public MessageListResponse getMessages(@RequestParam(value = "anchor", required = false) Long anchorMessageId,
-                                                @RequestParam(value = "num_before") Long numBefore,
-                                                @RequestParam(value = "num_after") Long numAfter,
-                                                @RequestParam(value = "narrow") String filterConditions)
-            throws JsonProcessingException {
+                                           @RequestParam(value = "num_before") Long numBefore,
+                                           @RequestParam(value = "num_after") Long numAfter,
+                                           @RequestParam(value = "narrow") String filterConditions) throws JsonProcessingException {
 
-        // Получаем условия фильтрации
-        String jsonFromFilterConditions = filterConditions.substring(1, filterConditions.length()-1);
-        NarrowDTO narrowDTO = objectMapper.readValue(jsonFromFilterConditions, NarrowDTO.class);
-        var operand = narrowDTO.getOperand();
-        var operator = narrowDTO.getOperator();
+        List<NarrowDTO> filterConditionsList = objectMapper.readValue(filterConditions, new TypeReference<>() {});
+        // Получаем список сообщений в соответствие с полученными условиями фильтрации
+        List<Message> foundMessages = messageService.getMessages(anchorMessageId, numBefore, numAfter, filterConditionsList);
 
-        List<OutgoingMessageDTO> outgoingMessageDTOS = new ArrayList<>();
-
-        // В зависимости от операции и операнда получаем список сообщений
-        if (Objects.equals(Operator.STREAM.operatorType, operator)) {
-            List<Message> foundMessages = new ArrayList<>();
-            if (anchorMessageId != null) {  // Если требуется пагинация
-                // Получаем сообщения для требуемого чата
-                Long chatId = Long.valueOf(operand);
-                //foundMessages = messageService.getMessagesByChatId(chatId);\
-                foundMessages = messageService.getAllInChatByWindow(chatId, anchorMessageId, numBefore, numAfter);
-
-            } else {  // Если необходимо только получение новых сообщений для чата
-                foundMessages = messageService.getNewMessagesByChatId(numBefore, Long.valueOf(operand));
-
-            }
-
-            // Конвертируем найденные сообщения в объекты для трансфера на фронт
-            outgoingMessageDTOS = foundMessages
-                    .stream()
-                    .map(message -> new OutgoingMessageDTO(
-                                    message.getText(),
-                                    message.getIdMessage(),
-                                    message.getUser().getFirstName() + " " + message.getUser().getSecondName(),
-                                    message.getUser().getTelephoneNumber(),
-                                    System.currentTimeMillis())
-                        )
-                    .collect(Collectors.toList());
-        }
-        // TODO: добавить САМУ ФИЛЬТРАЦИЮ
-        // TODO: sender_id = 7 ? - у нас id юзера - его моб. номер!)
+        // Конвертируем найденные сообщения в объекты для трансфера на фронт
+        List<OutgoingMessageDTO> outgoingMessageDTOS = foundMessages
+                .stream()
+                .map(message -> new OutgoingMessageDTO(
+                        message.getText(),
+                        message.getIdMessage(),
+                        message.getUser().getFirstName() + " " + message.getUser().getSecondName(),
+                        message.getUser().getTelephoneNumber(),
+                        System.currentTimeMillis())
+                )
+                .collect(Collectors.toList());
 
         return new MessageListResponse("", Response.successMessage, anchorMessageId, outgoingMessageDTOS);
     }
