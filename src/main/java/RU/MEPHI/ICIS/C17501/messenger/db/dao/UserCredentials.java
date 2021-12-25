@@ -14,16 +14,17 @@ import javax.persistence.*;
 @Entity
 @Builder
 public class UserCredentials {
+
     @Id
     @Column(length = 20)
-    private String login;
+    private String telephoneNumber;
 
     @Column(nullable = false, length = 50)
     @Length(max = 50, min = 10)
     private String password;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "login", insertable = false, updatable = false)
+    @JoinColumn(name = "telephoneNumber", insertable = false, updatable = false)
     @ToString.Exclude
     private User user;
 

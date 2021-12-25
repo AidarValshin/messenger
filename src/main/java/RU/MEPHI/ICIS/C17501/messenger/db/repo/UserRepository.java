@@ -41,5 +41,7 @@ public interface UserRepository extends JpaRepository<User, String> {
             "where login = :login", nativeQuery = true)
     List<UserProjection> findAllByProjectionAndByLogin(String login);
 
+    List<User> findAllByLogin(String login);
+
     List<User> findByLogin(String login);
 }
