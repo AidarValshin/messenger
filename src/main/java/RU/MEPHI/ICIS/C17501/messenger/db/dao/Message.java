@@ -41,7 +41,7 @@ public class Message {
 
     private Boolean isDeleted;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "telephoneNumber", insertable = false, updatable = false)
     @ToString.Exclude
     private User user;

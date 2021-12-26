@@ -61,6 +61,16 @@ public class ChatsController {
         return chatService.setUserSubscribedToStream(requesterTelephoneNumber, chatId);
     }
 
+    @PostMapping("/users/me/subscriptions/unsubscribe/{chatId}")
+    public Response setUserUnsubscribedToStream(@PathVariable Long chatId,
+                                              @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                              @RequestHeader("pass") String password) {
+        if (userService.checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(userService.checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
+        }
+        return chatService.setUserUnsubscribedToStream(requesterTelephoneNumber, chatId);
+    }
+
     @PostMapping("/create/{chatName}")
     public Response createStream(@PathVariable String chatName,
                                  @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
