@@ -25,17 +25,17 @@ public class ChatContact {
     @Column(name = "id_message")
     private Long lastMessageId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(nullable = false, name = "id_chat", insertable = false, updatable = false)
     @ToString.Exclude
     private Chat chat;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "telephoneNumber", insertable = false, updatable = false, nullable = false)
     @ToString.Exclude
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "id_message", insertable = false, updatable = false)
     @ToString.Exclude
     private Message lastMessage;

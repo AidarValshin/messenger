@@ -35,6 +35,24 @@ public class UsersController {
         return userService.getUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber, password);
     }
 
+    @GetMapping("/all/like/telephoneNumber/{telephoneNumber}")
+    public Response getUsersLikeByTelephoneNumber(@PathVariable String telephoneNumber,
+                                             @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                             @RequestHeader("pass") String password,
+                                                  @RequestHeader("offsetPages") Integer offsetPages,
+                                                  @RequestHeader("sizeOfPage") Integer sizeOfPage) {
+        return userService.getUsersLikeByTelephoneNumber(telephoneNumber, requesterTelephoneNumber, password, offsetPages, sizeOfPage);
+    }
+
+    @GetMapping("/all/like/login/{login}")
+    public Response getUsersLikeByLogin(@PathVariable String login,
+                                                  @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                                  @RequestHeader("pass") String password,
+                                                  @RequestHeader("offsetPages") Integer offsetPages,
+                                                  @RequestHeader("sizeOfPage") Integer sizeOfPage) {
+        return userService.getUsersLikeByLogin(login, requesterTelephoneNumber, password, offsetPages, sizeOfPage);
+    }
+
     @GetMapping("/byLogin")
     public Response getAllUsersByLogin(@RequestHeader("login") String login,
                                        @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
@@ -47,7 +65,7 @@ public class UsersController {
     public Response blockUserByTelephoneNumber(@PathVariable String telephoneNumber,
                                                @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
                                                @RequestHeader("pass") String password) {
-        return userService.blockUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber,password);
+        return userService.blockUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber, password);
     }
 
     @PostMapping("/register")
@@ -58,7 +76,7 @@ public class UsersController {
                                  @RequestHeader("date_of_birth") Date dateOfBirth,
                                  @RequestHeader("gender") String gender,
                                  @RequestHeader("pass") String password) {
-        return userService.createNewUser(telephoneNumber,  login,  firstName,
+        return userService.createNewUser(telephoneNumber, login, firstName,
                 secondName, dateOfBirth, gender, password);
     }
 

@@ -54,8 +54,8 @@ public class UserService {
 
     public Response getAllUsers(String requesterTelephoneNumber, int offsetPages,
                                 int sizeOfPage, String password) {
-        if (!checkCredentialsInRequests(requesterTelephoneNumber,password)) {
-            return new Response("Invalid credentials", errorMessage);
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         List<UserProjection> allUsers = userRepository.findAllByProjection(PageRequest.of(offsetPages, sizeOfPage));
         ArrayList<UserDTO> userDTOS = new ArrayList<>(allUsers.size());
@@ -66,17 +66,15 @@ public class UserService {
     }
 
     public Response getAllUsersByLogin(String requesterTelephoneNumber, String login, String password) {
-        if (!checkCredentialsInRequests(requesterTelephoneNumber, password)) {
-            return new Response("Invalid credentials", errorMessage);
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
         }
-        // TODO: не совсем понял, зачем тут танцы с бубном: нам же просто нужно достать по login-у из таблицы users
-        // List<UserProjection> allUsers = userRepository.findAllByProjectionAndByLogin(login);
-        List<User> allUsers = userRepository.findAllByLogin(login);
+        List<UserProjection> allUsers = userRepository.findAllWithRolesByProjectionAndByLogin(login);
         if (allUsers.isEmpty()) {
             return new Response("Invalid login '" + login + "'", errorMessage);
         }
         ArrayList<UserDTO> userDTOS = new ArrayList<>(allUsers.size());
-        for (User user : allUsers) {
+        for (UserProjection user : allUsers) {
             userDTOS.add(getUserDTO(user));
         }
         return new AllUsersResponse("", Response.successMessage, userDTOS);
@@ -85,8 +83,8 @@ public class UserService {
     public Response getUserByTelephoneNumber(String telephoneNumber,
                                              String requesterTelephoneNumber,
                                              String password) {
-        if (!checkCredentialsInRequests(requesterTelephoneNumber, password)) {
-            return new Response("Invalid credentials", errorMessage);
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         Optional<User> optionalUserByTelephoneNumber = userRepository.findById(telephoneNumber);
         if (optionalUserByTelephoneNumber.isPresent()) {
@@ -97,11 +95,49 @@ public class UserService {
         return new Response("Invalid user phone_number '" + telephoneNumber + "'", errorMessage);
     }
 
+    public Response getUsersLikeByTelephoneNumber(String telephoneNumber,
+                                                  String requesterTelephoneNumber,
+                                                  String password,
+                                                  int offsetPages,
+                                                  int sizeOfPage) {
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
+        }
+        List<User> byTelephoneNumberContaining = userRepository.findByTelephoneNumberContaining(telephoneNumber, PageRequest.of(offsetPages, sizeOfPage));
+        if (byTelephoneNumberContaining.isEmpty()) {
+            return new Response("", errorMessage);
+        }
+        ArrayList<UserDTO> userDTOS = new ArrayList<>(byTelephoneNumberContaining.size());
+        for (User user : byTelephoneNumberContaining) {
+            userDTOS.add(getUserDTO(user));
+        }
+        return new AllUsersResponse("", successMessage, userDTOS);
+    }
+
+    public Response getUsersLikeByLogin(String login,
+                                        String requesterTelephoneNumber,
+                                        String password,
+                                        int offsetPages,
+                                        int sizeOfPage) {
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
+        }
+        List<User> byTelephoneNumberContaining = userRepository.findByLoginContaining(login, PageRequest.of(offsetPages, sizeOfPage));
+        if (byTelephoneNumberContaining.isEmpty()) {
+            return new Response("", errorMessage);
+        }
+        ArrayList<UserDTO> userDTOS = new ArrayList<>(byTelephoneNumberContaining.size());
+        for (User user : byTelephoneNumberContaining) {
+            userDTOS.add(getUserDTO(user));
+        }
+        return new AllUsersResponse("", successMessage, userDTOS);
+    }
+
     public Response blockUserByTelephoneNumber(String targetTelephoneNumber,
                                                String requesterTelephoneNumber,
                                                String password) {
-        if (!checkCredentialsInRequests(requesterTelephoneNumber, password)) {
-            return new Response("Invalid credentials", errorMessage);
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
         User userRequester = optionalRequesterUserByTelephoneNumber.get();
@@ -164,20 +200,13 @@ public class UserService {
                 .build();
     }
 
-    public User getUserByTelephoneNumber(String telNumber) {
-        final Optional<User> user = userRepository.findById(telNumber);
-        if (user.isEmpty()) {
-            // TODO: логгируем
-        }
-        return user.get();
-    }
 
     public Response createNewUser(String telephoneNumber, String login, String firstName,
                                   String secondName, Date dateOfBirth, String gender, String password) {
         if (userRepository.findById(telephoneNumber).isPresent()) {
             return new Response("User with this telephone number already exists", errorMessage);
         }
-        if (!userRepository.findByLogin(login).isEmpty()) {
+        if (!userRepository.findAllByLogin(login).isEmpty()) {
             return new Response("User with this login already exists", errorMessage);
         }
         String passHash = getPassHash(password);
@@ -219,16 +248,23 @@ public class UserService {
         return new Response("Invalid credentials", errorMessage);
     }
 
-    public boolean checkCredentialsInRequests(String requesterTelephoneNumber, String password) {
-        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
-        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
-            return false;
+    public String checkCredentialsAndStatusInRequests(String requesterTelephoneNumber, String password) {
+        Optional<UserCredentials> optionalUserCredentials = userCredentialsRepository.findById(requesterTelephoneNumber);
+        if (optionalUserCredentials.isEmpty()) {
+            return "Invalid credentials";
         }
-        UserCredentials userCredentials = optionalRequesterUserByTelephoneNumber.get().getUserCredentials();
-            if (getPassHash(password).equals(userCredentials.getPassword())) {
-                return true;
-            }
-        return false;
+        UserCredentials userCredentials = optionalUserCredentials.get();
+        User user = userCredentials.getUser();
+        if (user.getIsLocked()) {
+            return "User is locked";
+        }
+        if (user.getIsDeleted()) {
+            return "User is deleted";
+        }
+        if (getPassHash(password).equals(userCredentials.getPassword())) {
+            return null;
+        }
+        return "Invalid credentials";
     }
 
     private String getPassHash(String password) {

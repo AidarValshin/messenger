@@ -1,6 +1,7 @@
 package RU.MEPHI.ICIS.C17501.messenger.db.repo;
 
 import RU.MEPHI.ICIS.C17501.messenger.db.dao.Chat;
+import RU.MEPHI.ICIS.C17501.messenger.db.dao.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -27,5 +28,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     List<Chat> findAllByIdChatIn(Collection<Long> chats, Pageable pageable);
 
     List<Chat> findAllByChatName(String chatName);
+
+    List<Chat> findByChatNameContaining(String chatName, Pageable pageable);
 
 }
