@@ -47,7 +47,7 @@ public class UsersController {
     public Response blockUserByTelephoneNumber(@PathVariable String telephoneNumber,
                                                @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
                                                @RequestHeader("pass") String password) {
-        return userService.blockUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber,password);
+        return userService.blockUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber, password);
     }
 
     @PostMapping("/register")
@@ -58,7 +58,7 @@ public class UsersController {
                                  @RequestHeader("date_of_birth") Date dateOfBirth,
                                  @RequestHeader("gender") String gender,
                                  @RequestHeader("pass") String password) {
-        return userService.createNewUser(telephoneNumber,  login,  firstName,
+        return userService.createNewUser(telephoneNumber, login, firstName,
                 secondName, dateOfBirth, gender, password);
     }
 

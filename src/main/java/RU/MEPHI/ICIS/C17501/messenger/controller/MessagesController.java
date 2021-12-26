@@ -54,7 +54,7 @@ public class MessagesController {
     @Autowired
     public MessagesController(MessageService messageService,
                               ObjectMapper objectMapper) {
-                                //SimpMessagingTemplate messagingTemplate) {
+        //SimpMessagingTemplate messagingTemplate) {
         this.messageService = messageService;
         //this.messagingTemplate = messagingTemplate;
         this.objectMapper = objectMapper;
@@ -62,8 +62,9 @@ public class MessagesController {
 
     /**
      * Метод отправки сообщения
-     * @param targetChatId id чата, куда отправляется сообщение
-     * @param messageContent тело сообщения
+     *
+     * @param targetChatId    id чата, куда отправляется сообщение
+     * @param messageContent  тело сообщения
      * @param senderTelNumber телефонный номер отправителя
      * @return стандартный ответ сервера об успехе операции
      */
@@ -71,9 +72,9 @@ public class MessagesController {
     public Response sendMessage(@RequestParam(value = "to") Long targetChatId,
                                 @RequestParam(value = "content") String messageContent,
                                 @RequestHeader(value = "requester_authorization_number") String senderTelNumber,
-                                @RequestHeader("pass") String password ) {
-                if(userService.checkCredentialsInRequests(senderTelNumber, password)!=null){
-            return new Response(userService.checkCredentialsInRequests(senderTelNumber, password), errorMessage);
+                                @RequestHeader("pass") String password) {
+        if (userService.checkCredentialsAndStatusInRequests(senderTelNumber, password) != null) {
+            return new Response(userService.checkCredentialsAndStatusInRequests(senderTelNumber, password), errorMessage);
         }
         // Сохраняем сообщение в БД
         Message message = messageService.createMessage(targetChatId, messageContent, senderTelNumber);
@@ -88,26 +89,27 @@ public class MessagesController {
     /**
      * Метод получения сообщений.В случае наличия поля anchor - производится пагинация,
      * в случае отсутствия поля anchor - получение последних num_before новых сообщений
-     * @param anchorMessageId id сообщения относительно которого осуществляется поиск
-     * @param numBefore количество сообщений идущих до id anchor
-     * @param numAfter количество сообщений идущих после id anchor
+     *
+     * @param anchorMessageId  id сообщения относительно которого осуществляется поиск
+     * @param numBefore        количество сообщений идущих до id anchor
+     * @param numAfter         количество сообщений идущих после id anchor
      * @param filterConditions объект фильтрации, представляет собой  массив JSON пар типа ключ значение
      * @return запрашиваемый список сообщений
      * @throws JsonProcessingException исключение, возникающее при попытке маппинга условий фильтрации в DTO
      */
     @GetMapping("/messages")
     public Response getMessages(@RequestParam(value = "anchor", required = false) Long anchorMessageId,
-                                                @RequestParam(value = "num_before") Long numBefore,
-                                                @RequestParam(value = "num_after") Long numAfter,
-                                                @RequestParam(value = "narrow") String filterConditions,
-                                           @RequestHeader(value = "requester_authorization_number") String senderTelNumber,
-                                           @RequestHeader("pass") String password )
+                                @RequestParam(value = "num_before") Long numBefore,
+                                @RequestParam(value = "num_after") Long numAfter,
+                                @RequestParam(value = "narrow") String filterConditions,
+                                @RequestHeader(value = "requester_authorization_number") String senderTelNumber,
+                                @RequestHeader("pass") String password)
             throws JsonProcessingException {
-        if(userService.checkCredentialsInRequests(senderTelNumber, password)!=null){
-            return new Response(userService.checkCredentialsInRequests(senderTelNumber, password), errorMessage);
+        if (userService.checkCredentialsAndStatusInRequests(senderTelNumber, password) != null) {
+            return new Response(userService.checkCredentialsAndStatusInRequests(senderTelNumber, password), errorMessage);
         }
         // Получаем условия фильтрации
-        String jsonFromFilterConditions = filterConditions.substring(1, filterConditions.length()-1);
+        String jsonFromFilterConditions = filterConditions.substring(1, filterConditions.length() - 1);
         NarrowDTO narrowDTO = objectMapper.readValue(jsonFromFilterConditions, NarrowDTO.class);
         var operand = narrowDTO.getOperand();
         var operator = narrowDTO.getOperator();
@@ -132,12 +134,12 @@ public class MessagesController {
             outgoingMessageDTOS = foundMessages
                     .stream()
                     .map(message -> new OutgoingMessageDTO(
-                                    message.getText(),
-                                    message.getIdMessage(),
-                                    message.getUser().getFirstName() + " " + message.getUser().getSecondName(),
-                                    message.getUser().getTelephoneNumber(),
-                                    System.currentTimeMillis())
-                        )
+                            message.getText(),
+                            message.getIdMessage(),
+                            message.getUser().getFirstName() + " " + message.getUser().getSecondName(),
+                            message.getUser().getTelephoneNumber(),
+                            System.currentTimeMillis())
+                    )
                     .collect(Collectors.toList());
         }
 

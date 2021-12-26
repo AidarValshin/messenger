@@ -54,8 +54,8 @@ public class UserService {
 
     public Response getAllUsers(String requesterTelephoneNumber, int offsetPages,
                                 int sizeOfPage, String password) {
-                if(checkCredentialsInRequests(requesterTelephoneNumber, password)!=null){
-            return new Response(checkCredentialsInRequests(requesterTelephoneNumber, password), errorMessage);
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         List<UserProjection> allUsers = userRepository.findAllByProjection(PageRequest.of(offsetPages, sizeOfPage));
         ArrayList<UserDTO> userDTOS = new ArrayList<>(allUsers.size());
@@ -66,8 +66,8 @@ public class UserService {
     }
 
     public Response getAllUsersByLogin(String requesterTelephoneNumber, String login, String password) {
-                if(checkCredentialsInRequests(requesterTelephoneNumber, password)!=null){
-            return new Response(checkCredentialsInRequests(requesterTelephoneNumber, password), errorMessage);
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         List<UserProjection> allUsers = userRepository.findAllWithRolesByProjectionAndByLogin(login);
         if (allUsers.isEmpty()) {
@@ -83,8 +83,8 @@ public class UserService {
     public Response getUserByTelephoneNumber(String telephoneNumber,
                                              String requesterTelephoneNumber,
                                              String password) {
-                if(checkCredentialsInRequests(requesterTelephoneNumber, password)!=null){
-            return new Response(checkCredentialsInRequests(requesterTelephoneNumber, password), errorMessage);
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         Optional<User> optionalUserByTelephoneNumber = userRepository.findById(telephoneNumber);
         if (optionalUserByTelephoneNumber.isPresent()) {
@@ -98,8 +98,8 @@ public class UserService {
     public Response blockUserByTelephoneNumber(String targetTelephoneNumber,
                                                String requesterTelephoneNumber,
                                                String password) {
-                if(checkCredentialsInRequests(requesterTelephoneNumber, password)!=null){
-            return new Response(checkCredentialsInRequests(requesterTelephoneNumber, password), errorMessage);
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
         User userRequester = optionalRequesterUserByTelephoneNumber.get();
@@ -210,17 +210,17 @@ public class UserService {
         return new Response("Invalid credentials", errorMessage);
     }
 
-    public String checkCredentialsInRequests(String requesterTelephoneNumber, String password) {
+    public String checkCredentialsAndStatusInRequests(String requesterTelephoneNumber, String password) {
         Optional<UserCredentials> optionalUserCredentials = userCredentialsRepository.findById(requesterTelephoneNumber);
         if (optionalUserCredentials.isEmpty()) {
             return "Invalid credentials";
         }
         UserCredentials userCredentials = optionalUserCredentials.get();
         User user = userCredentials.getUser();
-        if(user.getIsLocked()){
+        if (user.getIsLocked()) {
             return "User is locked";
         }
-        if(user.getIsDeleted()){
+        if (user.getIsDeleted()) {
             return "User is deleted";
         }
         if (getPassHash(password).equals(userCredentials.getPassword())) {
