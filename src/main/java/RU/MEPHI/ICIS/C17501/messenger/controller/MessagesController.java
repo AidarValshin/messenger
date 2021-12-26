@@ -5,8 +5,8 @@ import RU.MEPHI.ICIS.C17501.messenger.db.dto.NarrowDTO;
 import RU.MEPHI.ICIS.C17501.messenger.db.dto.OutgoingMessageDTO;
 import RU.MEPHI.ICIS.C17501.messenger.responce.Response;
 import RU.MEPHI.ICIS.C17501.messenger.responce.message.MessageListResponse;
-import RU.MEPHI.ICIS.C17501.messenger.service.ChatService;
 import RU.MEPHI.ICIS.C17501.messenger.service.MessageService;
+import RU.MEPHI.ICIS.C17501.messenger.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,9 +33,10 @@ public class MessagesController {
     MessageService messageService;
 
     /**
-     * Сервис для связки сообщений с чатами
+     * Сервис для проверки авторизации
      */
-    ChatService chatService;
+    @Autowired
+    UserService userService;
 
     /**
      * Класс для чтения JSON-форматированных данных
@@ -43,16 +44,13 @@ public class MessagesController {
     private ObjectMapper objectMapper;
 
     @Autowired
-    public MessagesController(MessageService messageService,
-                              ObjectMapper objectMapper) {
-        //SimpMessagingTemplate messagingTemplate) {
+    public MessagesController(MessageService messageService, ObjectMapper objectMapper) {
         this.messageService = messageService;
-        //this.messagingTemplate = messagingTemplate;
         this.objectMapper = objectMapper;
     }
 
     /**
-     * Метод отправки сообщения
+     * Метод отправки сообщения.
      *
      * @param targetChatId    id чата, куда отправляется сообщение
      * @param messageContent  тело сообщения
@@ -62,7 +60,12 @@ public class MessagesController {
     @PostMapping("/messages")
     public Response sendMessage(@RequestParam(value = "to") Long targetChatId,
                                 @RequestParam(value = "content") String messageContent,
-                                @RequestHeader(value = "requester_authorization_number") String senderTelNumber) {
+                                @RequestHeader(value = "requester_authorization_number") String senderTelNumber,
+                                @RequestHeader(value = "pass") String password) {
+
+        if (userService.checkCredentialsAndStatusInRequests(senderTelNumber, password) != null) {
+            return new Response(userService.checkCredentialsAndStatusInRequests(senderTelNumber, password), Response.errorMessage);
+        }
 
         // Сохраняем сообщение в БД
         Message message = messageService.createMessage(targetChatId, messageContent, senderTelNumber);
@@ -76,7 +79,7 @@ public class MessagesController {
 
     /**
      * Метод получения сообщений.В случае наличия поля anchor - производится пагинация,
-     * в случае отсутствия поля anchor - получение последних num_before новых сообщений
+     * в случае отсутствия поля anchor - получение последних num_before новых сообщений.
      *
      * @param anchorMessageId  id сообщения относительно которого осуществляется поиск
      * @param numBefore        количество сообщений идущих до id anchor
@@ -85,10 +88,16 @@ public class MessagesController {
      * @return запрашиваемый список сообщений
      */
     @GetMapping("/messages")
-    public MessageListResponse getMessages(@RequestParam(value = "anchor", required = false) Long anchorMessageId,
+    public Response getMessages(@RequestParam(value = "anchor", required = false) Long anchorMessageId,
                                            @RequestParam(value = "num_before") Long numBefore,
                                            @RequestParam(value = "num_after") Long numAfter,
-                                           @RequestParam(value = "narrow") String filterConditions) throws JsonProcessingException {
+                                           @RequestParam(value = "narrow") String filterConditions,
+                                           @RequestHeader(value = "requester_authorization_number") String senderTelNumber,
+                                           @RequestHeader(value = "pass") String password) throws JsonProcessingException {
+
+        if (userService.checkCredentialsAndStatusInRequests(senderTelNumber, password) != null) {
+            return new Response(userService.checkCredentialsAndStatusInRequests(senderTelNumber, password), Response.errorMessage);
+        }
 
         List<NarrowDTO> filterConditionsList = objectMapper.readValue(filterConditions, new TypeReference<>() {});
         // Получаем список сообщений в соответствие с полученными условиями фильтрации
@@ -108,5 +117,4 @@ public class MessagesController {
 
         return new MessageListResponse("", Response.successMessage, anchorMessageId, outgoingMessageDTOS);
     }
-
 }
