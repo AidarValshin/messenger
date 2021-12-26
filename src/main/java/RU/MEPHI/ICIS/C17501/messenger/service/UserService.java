@@ -57,9 +57,9 @@ public class UserService {
         List<UserProjection> allUsers = userRepository.findAllByProjection(PageRequest.of(offsetPages, sizeOfPage));
 
         Set<String> usersSet = new HashSet<>(allUsers.size());
-        ArrayList<UserDTO> userDTOS = new ArrayList<UserDTO>((int)(allUsers.size()/1.5));
+        ArrayList<UserDTO> userDTOS = new ArrayList<UserDTO>((int) (allUsers.size() / 1.5));
         for (UserProjection user : allUsers) {
-            if (user.getRoleName()!=null && user.getRoleName().equalsIgnoreCase("admin")) {
+            if (user.getRoleName() != null && user.getRoleName().equalsIgnoreCase("admin")) {
                 userDTOS.add(getUserDTO(user));
                 usersSet.add(user.getTelephoneNumber());
             }
@@ -182,7 +182,7 @@ public class UserService {
                 .photoUrl(user.getPhotoUrl() != null ? user.getPhotoUrl() : "")
                 .telephoneNumber(user.getTelephoneNumber())
                 .fullName(user.getFirstName() + " " + user.getSecondName())
-                .isAdmin(user.getRoleName()!=null&&user.getRoleName().equalsIgnoreCase("admin"))
+                .isAdmin(user.getRoleName() != null && user.getRoleName().equalsIgnoreCase("admin"))
                 .isBlocked(user.getIsBlocked())
                 .isDeleted(user.getIsDeleted())
                 .login(user.getLogin())
