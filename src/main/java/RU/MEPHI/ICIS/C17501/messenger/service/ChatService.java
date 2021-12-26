@@ -137,6 +137,10 @@ public class ChatService {
         if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
             return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
         }
+
+        if (!chatRepository.findAllByChatName(streamName).isEmpty()) {
+            return new Response("Stream with the name " + streamName + " already exists! Stream was not created...", errorMessage);
+        }
         Chat chat = Chat.builder().chatName(streamName).build();
         Chat savedChat = chatRepository.save(chat);
         User user = optionalRequesterUserByTelephoneNumber.get();
