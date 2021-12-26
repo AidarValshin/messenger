@@ -5,23 +5,23 @@ import java.sql.Date;
 import java.util.Set;
 
 public interface UserProjection {
-    public String getPhotoUrl();
+    String getPhotoUrl();
 
-    public String getTelephoneNumber();
+    String getTelephoneNumber();
 
-    public String getFirstName();
+    String getFirstName();
 
-    public String getSecondName();
+    String getSecondName();
 
-    public Set<String> getRoleName();
+    Set<String> getRoleName();
 
-    public Boolean getIsBlocked();
+    Boolean getIsBlocked();
 
-    public Boolean getIsDeleted();
+    Boolean getIsDeleted();
 
-    public String getLogin();
+    String getLogin();
 
-    public Date getDateOfBirth();
+    Date getDateOfBirth();
 
-    public String getGender();
+    String getGender();
 }

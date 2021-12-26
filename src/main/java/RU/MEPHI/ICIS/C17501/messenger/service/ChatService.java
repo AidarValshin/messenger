@@ -59,6 +59,20 @@ public class ChatService {
         return new AllChatsResponse("", Response.successMessage, chatDTOS);
     }
 
+    public Response getAllChatsLikeByName(String requesterTelephoneNumber, String chatName, int offsetPages,int sizeOfPage) {
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
+        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
+            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+        }
+        List<Chat> allChats = chatRepository.findByChatNameContaining(chatName,PageRequest.of(offsetPages, sizeOfPage));
+        ArrayList<ChatDTO> chatDTOS = new ArrayList<>(allChats.size());
+        List<ChatContact> allChatsByTelephoneNumber = chatContactRepository.findAllByTelephoneNumber(requesterTelephoneNumber);
+        for (Chat chat : allChats) {
+            chatDTOS.add(getChatsDTO(chat, allChatsByTelephoneNumber));
+        }
+        return new AllChatsResponse("", Response.successMessage, chatDTOS);
+    }
+
 
     public Response getAllChatsSubscribed(String requesterTelephoneNumber, int offsetPages, int sizeOfPage) {
         Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
@@ -68,7 +82,7 @@ public class ChatService {
         List<ChatContact> allChatsByTelephoneNumber = chatContactRepository.findAllByTelephoneNumber(requesterTelephoneNumber);
         ArrayList<ChatDTO> chatDTOS = new ArrayList<>(allChatsByTelephoneNumber.size());
         List<Chat> allChatsByIdChatIn = chatRepository.findAllByIdChatIn(allChatsByTelephoneNumber.stream()
-                .map(ChatContact::getIdChat).collect(Collectors.toList()),PageRequest.of(offsetPages, sizeOfPage));
+                .map(ChatContact::getIdChat).collect(Collectors.toList()), PageRequest.of(offsetPages, sizeOfPage));
         for (Chat chat : allChatsByIdChatIn) {
             chatDTOS.add(getChatsDTO(chat));
         }
@@ -96,6 +110,25 @@ public class ChatService {
                 .telephoneNumber(requesterTelephoneNumber)
                 .build();
         chatContactRepository.save(chatContact);
+        return new Response("", Response.successMessage);
+    }
+
+    public Response setUserUnsubscribedToStream(String requesterTelephoneNumber, Long streamId) {
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
+        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
+            return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
+        }
+        Optional<Chat> optionalChat = chatRepository.findById(streamId);
+        if (optionalChat.isEmpty()) {
+            return new Response("Invalid chat'" + optionalChat + "'", errorMessage);
+        }
+        Chat chat = optionalChat.get();
+        List<ChatContact> chatContactByTelephoneNumberAndChatId = chatContactRepository
+                .findByTelephoneNumberAndIdChat(requesterTelephoneNumber, chat.getIdChat());
+        if (chatContactByTelephoneNumberAndChatId.isEmpty()) {
+            return new Response("You are already unsubscribed", errorMessage);
+        }
+        chatContactRepository.deleteAll(chatContactByTelephoneNumberAndChatId);
         return new Response("", Response.successMessage);
     }
 
