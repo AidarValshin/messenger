@@ -72,8 +72,8 @@ public class MessagesController {
                                 @RequestParam(value = "content") String messageContent,
                                 @RequestHeader(value = "requester_authorization_number") String senderTelNumber,
                                 @RequestHeader("pass") String password ) {
-        if(!userService.checkCredentialsInRequests(senderTelNumber,password)){
-            return new Response("Invalid credentials", errorMessage);
+                if(userService.checkCredentialsInRequests(senderTelNumber, password)!=null){
+            return new Response(userService.checkCredentialsInRequests(senderTelNumber, password), errorMessage);
         }
         // Сохраняем сообщение в БД
         Message message = messageService.createMessage(targetChatId, messageContent, senderTelNumber);
@@ -103,8 +103,8 @@ public class MessagesController {
                                            @RequestHeader(value = "requester_authorization_number") String senderTelNumber,
                                            @RequestHeader("pass") String password )
             throws JsonProcessingException {
-        if (!userService.checkCredentialsInRequests(senderTelNumber,password)) {
-            return new Response("Invalid credentials", errorMessage);
+        if(userService.checkCredentialsInRequests(senderTelNumber, password)!=null){
+            return new Response(userService.checkCredentialsInRequests(senderTelNumber, password), errorMessage);
         }
         // Получаем условия фильтрации
         String jsonFromFilterConditions = filterConditions.substring(1, filterConditions.length()-1);

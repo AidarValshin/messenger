@@ -21,8 +21,8 @@ public class ChatsController {
                                   @RequestHeader("offsetPages") Integer offsetPages,
                                   @RequestHeader("sizeOfPage") Integer sizeOfPage,
                                   @RequestHeader("pass") String password) {
-        if (!userService.checkCredentialsInRequests(requesterTelephoneNumber, password)) {
-            return new Response("Invalid credentials", errorMessage);
+        if (userService.checkCredentialsInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(userService.checkCredentialsInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         return chatService.getAllChats(requesterTelephoneNumber, offsetPages, sizeOfPage);
     }
@@ -32,8 +32,8 @@ public class ChatsController {
                                                 requesterTelephoneNumber,
                                         @PathVariable String chatName,
                                         @RequestHeader("pass") String password) {
-        if (!userService.checkCredentialsInRequests(requesterTelephoneNumber, password)) {
-            return new Response("Invalid credentials", errorMessage);
+        if (userService.checkCredentialsInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(userService.checkCredentialsInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         return chatService.getAllChatsByName(requesterTelephoneNumber, chatName);
     }
@@ -44,8 +44,8 @@ public class ChatsController {
                                           @RequestHeader("offsetPages") Integer offsetPages,
                                           @RequestHeader("sizeOfPage") Integer sizeOfPage,
                                           @RequestHeader("pass") String password) {
-        if (!userService.checkCredentialsInRequests(requesterTelephoneNumber, password)) {
-            return new Response("Invalid credentials", errorMessage);
+        if (userService.checkCredentialsInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(userService.checkCredentialsInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         return chatService.getAllChatsSubscribed(requesterTelephoneNumber, offsetPages, sizeOfPage);
     }
@@ -55,8 +55,8 @@ public class ChatsController {
     public Response setUserSubscribedToStream(@PathVariable Long chatId,
                                               @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
                                               @RequestHeader("pass") String password) {
-        if (!userService.checkCredentialsInRequests(requesterTelephoneNumber, password)) {
-            return new Response("Invalid credentials", errorMessage);
+        if (userService.checkCredentialsInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(userService.checkCredentialsInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         return chatService.setUserSubscribedToStream(requesterTelephoneNumber, chatId);
     }
@@ -65,8 +65,8 @@ public class ChatsController {
     public Response createStream(@PathVariable String chatName,
                                  @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
                                  @RequestHeader("pass") String password) {
-        if (!userService.checkCredentialsInRequests(requesterTelephoneNumber, password)) {
-            return new Response("Invalid credentials", errorMessage);
+        if (userService.checkCredentialsInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(userService.checkCredentialsInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         return chatService.createStream(requesterTelephoneNumber, chatName);
     }
