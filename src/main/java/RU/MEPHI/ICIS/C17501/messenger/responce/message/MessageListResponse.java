@@ -24,4 +24,12 @@ public class MessageListResponse extends Response implements Serializable {
         this.anchor = anchorId;
         this.outgoingMessageDTOList = outgoingMessageDTOList;
     }
+
+    public MessageListResponse() {
+    }
+
+    public MessageListResponse(Long anchor, List<OutgoingMessageDTO> outgoingMessageDTOList) {
+        this.anchor = anchor;
+        this.outgoingMessageDTOList = outgoingMessageDTOList;
+    }
 }
