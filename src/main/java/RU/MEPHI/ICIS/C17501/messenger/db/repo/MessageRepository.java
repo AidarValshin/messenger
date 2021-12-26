@@ -61,5 +61,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     Page<Message> findAllByIdChat(Long chatId, Pageable pageable);
 
-    List<Message> findByIdChatAndTextContainingOrderByLastChangesDate(Long chatId, String keyword);
+    List<Message> findByIdChatAndTextContainingIgnoringCaseOrderByLastChangesDate(Long chatId, String keyword);
 }

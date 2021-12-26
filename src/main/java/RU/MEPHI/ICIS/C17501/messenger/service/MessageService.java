@@ -134,7 +134,7 @@ public class MessageService {
     //@Cacheable(key = "chatId", cacheNames = "chatId")
     public List<Message> getMessagesByContent(Long chatId, String keyword) {
         //return messageRepository.findAllByIdChatAndTextContainingIgnoreCaseOrderByLastChangesDate(chatId, keyword);
-        return messageRepository.findByIdChatAndTextContainingOrderByLastChangesDate(chatId, keyword);
+        return messageRepository.findByIdChatAndTextContainingIgnoringCaseOrderByLastChangesDate(chatId, keyword);
     }
 
     public List<Message> getMessages(Long anchorMessageId, Long numBefore, Long numAfter, List<NarrowDTO> filterConditions) {
@@ -162,7 +162,9 @@ public class MessageService {
                     foundMessages = this.getMessagesByContent(chatId, keyword);
                     if (!foundMessages.isEmpty()) {
                         if (anchorMessageId == null) {
-                            foundMessages = foundMessages.subList((int) (foundMessages.size() - numBefore), foundMessages.size());
+                            int leftBound = foundMessages.size() >= numBefore ?
+                                    (int) (foundMessages.size() - numBefore) : 0;
+                            foundMessages = foundMessages.subList(leftBound, foundMessages.size());
                         } else {
                             var anchorMessageNumberInQuery = 0;
                             for (int i = 0; i < foundMessages.size(); i++) {
@@ -175,12 +177,12 @@ public class MessageService {
                                             (int) (anchorMessageNumberInQuery - numBefore) : 0;
                             foundMessages = foundMessages.subList(leftBound, anchorMessageNumberInQuery);
                         }
+                    }
+                } else {
+                    if (anchorMessageId == null) {
+                        foundMessages = this.getNewMessagesByChatId(numBefore, chatId);
                     } else {
-                        if (anchorMessageId == null) {
-                            foundMessages = this.getNewMessagesByChatId(numBefore, chatId);
-                        } else {
-                            foundMessages = this.getAllInChatByWindow(chatId, anchorMessageId, numBefore, numAfter);
-                        }
+                        foundMessages = this.getAllInChatByWindow(chatId, anchorMessageId, numBefore, numAfter);
                     }
                 }
             } catch (NumberFormatException numberFormatException) {
