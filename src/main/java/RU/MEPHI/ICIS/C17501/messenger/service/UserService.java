@@ -56,8 +56,8 @@ public class UserService {
         }
         List<UserProjection> allUsers = userRepository.findAllByProjection(PageRequest.of(offsetPages, sizeOfPage));
 
-        Set<String> usersSet = new HashSet<>(allUsers.size());
-        ArrayList<UserDTO> userDTOS = new ArrayList<UserDTO>((int) (allUsers.size() / 1.5));
+        Set<String> usersSet = new HashSet<>((int) (allUsers.size() / 1.5));
+        ArrayList<UserDTO> userDTOS = new ArrayList<>((int) (allUsers.size() / 1.5));
         for (UserProjection user : allUsers) {
             if (user.getRoleName() != null && user.getRoleName().equalsIgnoreCase("admin")) {
                 userDTOS.add(getUserDTO(user));
