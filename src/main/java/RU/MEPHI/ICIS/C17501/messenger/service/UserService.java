@@ -22,10 +22,7 @@ import javax.validation.Validator;
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.errorMessage;
@@ -58,7 +55,16 @@ public class UserService {
             return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
         }
         List<UserProjection> allUsers = userRepository.findAllByProjection(PageRequest.of(offsetPages, sizeOfPage));
-        ArrayList<UserDTO> userDTOS = new ArrayList<>(allUsers.size());
+
+        Set<String> usersSet = new HashSet<>(allUsers.size());
+        ArrayList<UserDTO> userDTOS = new ArrayList<UserDTO>((int)(allUsers.size()/1.5));
+        for (UserProjection user : allUsers) {
+            if (user.getRoleName()!=null && user.getRoleName().equalsIgnoreCase("admin")) {
+                userDTOS.add(getUserDTO(user));
+                usersSet.add(user.getTelephoneNumber());
+            }
+        }
+        allUsers.removeIf(p -> !usersSet.add(p.getTelephoneNumber()));
         for (UserProjection user : allUsers) {
             userDTOS.add(getUserDTO(user));
         }
@@ -176,8 +182,7 @@ public class UserService {
                 .photoUrl(user.getPhotoUrl() != null ? user.getPhotoUrl() : "")
                 .telephoneNumber(user.getTelephoneNumber())
                 .fullName(user.getFirstName() + " " + user.getSecondName())
-                .isAdmin(user.getRoleName().stream().anyMatch
-                        (roleUser -> roleUser.equalsIgnoreCase("admin")))
+                .isAdmin(user.getRoleName()!=null&&user.getRoleName().equalsIgnoreCase("admin"))
                 .isBlocked(user.getIsBlocked())
                 .isDeleted(user.getIsDeleted())
                 .login(user.getLogin())

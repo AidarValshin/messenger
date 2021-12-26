@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, String> {
             "       u.is_locked as isBlocked," +
             "       u.gender as gender," +
             "       r.name as roleName " +
-            "from messenger.users u join  messenger.roles_users_mapping m on u.telephone_number=m.telephone_number" +
+            "from messenger.users u left join  messenger.roles_users_mapping m on u.telephone_number=m.telephone_number" +
             " left join  messenger.roles r on m.id_role=r.id_role", nativeQuery = true)
     List<UserProjection> findAllByProjection(Pageable pageable);
 
