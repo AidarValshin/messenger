@@ -44,5 +44,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findAllByLogin(String login);
 
     List<User> findByTelephoneNumberContaining(String telephoneNumber,Pageable pageable);
+
     List<User> findByLoginContaining(String login,Pageable pageable);
 }

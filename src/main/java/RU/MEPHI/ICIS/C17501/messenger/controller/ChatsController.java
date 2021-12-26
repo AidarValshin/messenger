@@ -38,6 +38,19 @@ public class ChatsController {
         return chatService.getAllChatsByName(requesterTelephoneNumber, chatName);
     }
 
+    @GetMapping("/like/{chatName}")
+    public Response getAllStreamsLikeByName(@RequestHeader("requester_authorization_number") String
+                                                    requesterTelephoneNumber,
+                                            @PathVariable String chatName,
+                                            @RequestHeader("pass") String password,
+                                            @RequestHeader("offsetPages") Integer offsetPages,
+                                            @RequestHeader("sizeOfPage") Integer sizeOfPage) {
+        if (userService.checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(userService.checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
+        }
+        return chatService.getAllChatsLikeByName(requesterTelephoneNumber, chatName,offsetPages, sizeOfPage);
+    }
+
     @GetMapping("/users/me/subscriptions")
     public Response getAllChatsSubscribed(@RequestHeader("requester_authorization_number")
                                                   String requesterTelephoneNumber,
@@ -63,8 +76,8 @@ public class ChatsController {
 
     @PostMapping("/users/me/subscriptions/unsubscribe/{chatId}")
     public Response setUserUnsubscribedToStream(@PathVariable Long chatId,
-                                              @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
-                                              @RequestHeader("pass") String password) {
+                                                @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                                @RequestHeader("pass") String password) {
         if (userService.checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
             return new Response(userService.checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
         }
