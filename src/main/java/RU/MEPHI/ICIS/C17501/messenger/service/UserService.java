@@ -95,6 +95,44 @@ public class UserService {
         return new Response("Invalid user phone_number '" + telephoneNumber + "'", errorMessage);
     }
 
+    public Response getUsersLikeByTelephoneNumber(String telephoneNumber,
+                                                  String requesterTelephoneNumber,
+                                                  String password,
+                                                  int offsetPages,
+                                                  int sizeOfPage) {
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
+        }
+        List<User> byTelephoneNumberContaining = userRepository.findByTelephoneNumberContaining(telephoneNumber, PageRequest.of(offsetPages, sizeOfPage));
+        if (byTelephoneNumberContaining.isEmpty()) {
+            return new Response("", errorMessage);
+        }
+        ArrayList<UserDTO> userDTOS = new ArrayList<>(byTelephoneNumberContaining.size());
+        for (User user : byTelephoneNumberContaining) {
+            userDTOS.add(getUserDTO(user));
+        }
+        return new AllUsersResponse("", successMessage, userDTOS);
+    }
+
+    public Response getUsersLikeByLogin(String login,
+                                        String requesterTelephoneNumber,
+                                        String password,
+                                        int offsetPages,
+                                        int sizeOfPage) {
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
+        }
+        List<User> byTelephoneNumberContaining = userRepository.findByLoginContaining(login, PageRequest.of(offsetPages, sizeOfPage));
+        if (byTelephoneNumberContaining.isEmpty()) {
+            return new Response("", errorMessage);
+        }
+        ArrayList<UserDTO> userDTOS = new ArrayList<>(byTelephoneNumberContaining.size());
+        for (User user : byTelephoneNumberContaining) {
+            userDTOS.add(getUserDTO(user));
+        }
+        return new AllUsersResponse("", successMessage, userDTOS);
+    }
+
     public Response blockUserByTelephoneNumber(String targetTelephoneNumber,
                                                String requesterTelephoneNumber,
                                                String password) {

@@ -35,6 +35,24 @@ public class UsersController {
         return userService.getUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber, password);
     }
 
+    @GetMapping("/all/like/telephoneNumber/{telephoneNumber}")
+    public Response getUsersLikeByTelephoneNumber(@PathVariable String telephoneNumber,
+                                             @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                             @RequestHeader("pass") String password,
+                                                  @RequestHeader("offsetPages") Integer offsetPages,
+                                                  @RequestHeader("sizeOfPage") Integer sizeOfPage) {
+        return userService.getUsersLikeByTelephoneNumber(telephoneNumber, requesterTelephoneNumber, password, offsetPages, sizeOfPage);
+    }
+
+    @GetMapping("/all/like/login/{login}")
+    public Response getUsersLikeByLogin(@PathVariable String login,
+                                                  @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                                  @RequestHeader("pass") String password,
+                                                  @RequestHeader("offsetPages") Integer offsetPages,
+                                                  @RequestHeader("sizeOfPage") Integer sizeOfPage) {
+        return userService.getUsersLikeByLogin(login, requesterTelephoneNumber, password, offsetPages, sizeOfPage);
+    }
+
     @GetMapping("/byLogin")
     public Response getAllUsersByLogin(@RequestHeader("login") String login,
                                        @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
