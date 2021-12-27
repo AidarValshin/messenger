@@ -111,7 +111,7 @@ public class MessagesController {
                         message.getIdMessage(),
                         message.getUser().getFirstName() + " " + message.getUser().getSecondName(),
                         message.getUser().getTelephoneNumber(),
-                        System.currentTimeMillis())
+                        message.getLastChangesDate().getTime())
                 )
                 .collect(Collectors.toList());
 
