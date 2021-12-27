@@ -93,5 +93,15 @@ public class ChatsController {
         }
         return chatService.createStream(requesterTelephoneNumber, chatName);
     }
+
+    @PostMapping("/delete/{idChat}")
+    public Response deleteStream(@PathVariable Long idChat,
+                                 @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                 @RequestHeader("pass") String password) {
+        if (userService.checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(userService.checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
+        }
+        return chatService.deleteStream(requesterTelephoneNumber, idChat);
+    }
 }
 

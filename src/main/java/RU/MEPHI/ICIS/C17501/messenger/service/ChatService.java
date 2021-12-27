@@ -29,6 +29,8 @@ public class ChatService {
     UserRepository userRepository;
     @Autowired
     ChatContactRepository chatContactRepository;
+    @Autowired
+    UserService userService;
 
     public Response getAllChats(String requesterTelephoneNumber, int offsetPages, int sizeOfPage) {
         Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
@@ -148,7 +150,19 @@ public class ChatService {
         chatContactRepository.save(builtChatContact);
         return new Response("", Response.successMessage);
     }
-
+    public Response deleteStream(String requesterTelephoneNumber, Long idChat) {
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
+        User userRequester = optionalRequesterUserByTelephoneNumber.get();
+        if (!userService.isAdmin(userRequester)) {
+            return new Response("You are not admin", errorMessage);
+        }
+        Optional<Chat> optionalChat = chatRepository.findById(idChat);
+        if (optionalChat.isEmpty()) {
+            return new Response("Stream with the id " + idChat + " doesn't  exist!", errorMessage);
+        }
+        chatRepository.delete(optionalChat.get());
+        return new Response("", Response.successMessage);
+    }
     private ChatDTO getChatsDTO(Chat chat, List<ChatContact> allChatsByTelephoneNumber) {
         return ChatDTO.builder()
                 .photoUrl(chat.getPhotoUrl() != null ? chat.getPhotoUrl() : "")
