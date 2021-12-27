@@ -68,6 +68,13 @@ public class UsersController {
         return userService.blockUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber, password);
     }
 
+    @PostMapping("/{telephoneNumber}/delete")
+    public Response deleteUserByTelephoneNumber(@PathVariable String telephoneNumber,
+                                               @RequestHeader("requester_authorization_number") String requesterTelephoneNumber,
+                                               @RequestHeader("pass") String password) {
+        return userService.deleteUserByTelephoneNumber(telephoneNumber, requesterTelephoneNumber, password);
+    }
+
     @PostMapping("/register")
     public Response registerUser(@RequestHeader("telephone_number") String telephoneNumber,
                                  @RequestHeader("login") String login,
