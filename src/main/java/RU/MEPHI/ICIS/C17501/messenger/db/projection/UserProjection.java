@@ -13,7 +13,7 @@ public interface UserProjection {
 
     String getSecondName();
 
-    Set<String> getRoleName();
+    String getRoleName();
 
     Boolean getIsBlocked();
 
