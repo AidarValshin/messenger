@@ -283,6 +283,13 @@ public class UserService {
         Optional<UserCredentials> optionalUserCredentials = userCredentialsRepository.findById(telephoneNumber);
         if (optionalUserCredentials.isPresent()) {
             UserCredentials userCredentials = optionalUserCredentials.get();
+            User user = userCredentials.getUser();
+            if(user.getIsDeleted()){
+                return new Response("User is deleted", errorMessage);
+            }
+            if(user.getIsLocked()){
+                return new Response("User is locked", errorMessage);
+            }
             if (getPassHash(password).equals(userCredentials.getPassword())) {
                 return new Response("Right credentials", successMessage);
             }
