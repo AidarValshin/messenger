@@ -43,7 +43,6 @@ public class MessageService {
     }
 
     public Message createMessage(Long targetChatId, String messageContent, String senderTelNumber) {
-        // Достаём отправителя сообщения
 
         //final User sender = userService.getUserByTelephoneNumber(senderTelNumber);
 

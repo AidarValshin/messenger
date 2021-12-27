@@ -5,6 +5,7 @@ import RU.MEPHI.ICIS.C17501.messenger.db.dto.NarrowDTO;
 import RU.MEPHI.ICIS.C17501.messenger.db.dto.OutgoingMessageDTO;
 import RU.MEPHI.ICIS.C17501.messenger.responce.Response;
 import RU.MEPHI.ICIS.C17501.messenger.responce.message.MessageListResponse;
+import RU.MEPHI.ICIS.C17501.messenger.service.ChatService;
 import RU.MEPHI.ICIS.C17501.messenger.service.MessageService;
 import RU.MEPHI.ICIS.C17501.messenger.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,13 +31,19 @@ public class MessagesController {
     /**
      * Сервис для обработки функционала обмена сообщениями
      */
-    MessageService messageService;
+    private MessageService messageService;
 
     /**
      * Сервис для проверки авторизации
      */
     @Autowired
-    UserService userService;
+    private UserService userService;
+
+    /**
+     * Сервис для работы с чатами
+     */
+    @Autowired
+    private ChatService chatService;
 
     /**
      * Класс для чтения JSON-форматированных данных
@@ -65,6 +72,13 @@ public class MessagesController {
 
         if (userService.checkCredentialsAndStatusInRequests(senderTelNumber, password) != null) {
             return new Response(userService.checkCredentialsAndStatusInRequests(senderTelNumber, password), Response.errorMessage);
+        }
+
+        // Проверяем, подписан ли пользователь на чат, в который он пытается отправить сообщение
+        if (!chatService.getAllChatsSubscribed(senderTelNumber).contains(targetChatId)) {
+            return new Response(
+                    "Can't create new message, because user doesn't subscribed to the target stream",
+                    Response.errorMessage);
         }
 
         // Сохраняем сообщение в БД
