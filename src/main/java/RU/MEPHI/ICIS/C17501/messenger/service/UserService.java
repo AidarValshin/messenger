@@ -209,7 +209,7 @@ public class UserService {
         return new Response("Database error. Please,contact support team. Requester "
                 + requesterTelephoneNumber + ",target " + targetTelephoneNumber, errorMessage);
     }
-    private boolean isAdmin(User user) {
+    public boolean isAdmin(User user) {
         return user.getRoles().stream().anyMatch
                 (roleUser -> roleUser.getName().equalsIgnoreCase("admin"));
     }

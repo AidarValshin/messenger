@@ -1,5 +1,6 @@
 package RU.MEPHI.ICIS.C17501.messenger.db.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -37,4 +38,9 @@ public class Chat {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "idChat", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<Message> messagesSet;
+
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "idChat", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    Set<ChatContact> chatContacts;
 }

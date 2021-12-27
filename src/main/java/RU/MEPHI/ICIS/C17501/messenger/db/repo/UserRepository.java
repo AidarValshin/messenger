@@ -23,7 +23,8 @@ public interface UserRepository extends JpaRepository<User, String> {
             "       u.gender as gender," +
             "       r.name as roleName " +
             "from messenger.users u left join  messenger.roles_users_mapping m on u.telephone_number=m.telephone_number" +
-            " left join  messenger.roles r on m.id_role=r.id_role", nativeQuery = true)
+            " left join  messenger.roles r on m.id_role=r.id_role " +
+            "where u.is_deleted=false", nativeQuery = true)
     List<UserProjection> findAllByProjection(Pageable pageable);
 
     @Query(value = "select u.telephone_number as telephoneNumber," +
