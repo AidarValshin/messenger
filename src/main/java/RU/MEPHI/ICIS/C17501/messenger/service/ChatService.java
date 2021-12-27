@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.errorMessage;
@@ -61,12 +58,12 @@ public class ChatService {
         return new AllChatsResponse("", Response.successMessage, chatDTOS);
     }
 
-    public Response getAllChatsLikeByName(String requesterTelephoneNumber, String chatName, int offsetPages,int sizeOfPage) {
+    public Response getAllChatsLikeByName(String requesterTelephoneNumber, String chatName, int offsetPages, int sizeOfPage) {
         Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
         if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
             return new Response("Invalid requester user phone_number '" + requesterTelephoneNumber + "'", errorMessage);
         }
-        List<Chat> allChats = chatRepository.findByChatNameContaining(chatName,PageRequest.of(offsetPages, sizeOfPage));
+        List<Chat> allChats = chatRepository.findByChatNameContaining(chatName, PageRequest.of(offsetPages, sizeOfPage));
         ArrayList<ChatDTO> chatDTOS = new ArrayList<>(allChats.size());
         List<ChatContact> allChatsByTelephoneNumber = chatContactRepository.findAllByTelephoneNumber(requesterTelephoneNumber);
         for (Chat chat : allChats) {
@@ -89,6 +86,15 @@ public class ChatService {
             chatDTOS.add(getChatsDTO(chat));
         }
         return new AllChatsResponse("", Response.successMessage, chatDTOS);
+    }
+
+    public List<Long> getAllChatsSubscribed(String requesterTelephoneNumber) {
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
+        if (optionalRequesterUserByTelephoneNumber.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<ChatContact> allChatsByTelephoneNumber = chatContactRepository.findAllByTelephoneNumber(requesterTelephoneNumber);
+        return allChatsByTelephoneNumber.stream().map(ChatContact::getIdChat).collect(Collectors.toList());
     }
 
     public Response setUserSubscribedToStream(String requesterTelephoneNumber, Long streamId) {
@@ -150,6 +156,7 @@ public class ChatService {
         chatContactRepository.save(builtChatContact);
         return new Response("", Response.successMessage);
     }
+
     public Response deleteStream(String requesterTelephoneNumber, Long idChat) {
         Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
         User userRequester = optionalRequesterUserByTelephoneNumber.get();
@@ -163,6 +170,7 @@ public class ChatService {
         chatRepository.delete(optionalChat.get());
         return new Response("", Response.successMessage);
     }
+
     private ChatDTO getChatsDTO(Chat chat, List<ChatContact> allChatsByTelephoneNumber) {
         return ChatDTO.builder()
                 .photoUrl(chat.getPhotoUrl() != null ? chat.getPhotoUrl() : "")

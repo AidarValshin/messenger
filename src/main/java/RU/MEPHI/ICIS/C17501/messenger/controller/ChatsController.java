@@ -52,7 +52,7 @@ public class ChatsController {
     }
 
     @GetMapping("/users/me/subscriptions")
-    public Response getAllChatsSubscribed(@RequestHeader("requester_authorization_number")
+    public Response getAllStreamsSubscribed(@RequestHeader("requester_authorization_number")
                                                   String requesterTelephoneNumber,
                                           @RequestHeader("offsetPages") Integer offsetPages,
                                           @RequestHeader("sizeOfPage") Integer sizeOfPage,
