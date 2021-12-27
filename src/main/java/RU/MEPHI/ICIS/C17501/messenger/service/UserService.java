@@ -158,7 +158,35 @@ public class UserService {
         if (isAdmin(userTarget)) {
             return new Response("Target user is admin", errorMessage);
         }
+        if (userTarget.getIsLocked()) {
+            return new Response("Target user already was locked", errorMessage);
+        }
         return setUserLocked(targetTelephoneNumber, requesterTelephoneNumber, userTarget);
+    }
+
+    public Response deleteUserByTelephoneNumber(String targetTelephoneNumber,
+                                               String requesterTelephoneNumber,
+                                               String password) {
+        if (checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password) != null) {
+            return new Response(checkCredentialsAndStatusInRequests(requesterTelephoneNumber, password), errorMessage);
+        }
+        Optional<User> optionalRequesterUserByTelephoneNumber = userRepository.findById(requesterTelephoneNumber);
+        User userRequester = optionalRequesterUserByTelephoneNumber.get();
+        if (!isAdmin(userRequester)) {
+            return new Response("You are not admin", errorMessage);
+        }
+        Optional<User> optionalTargetUserByTelephoneNumber = userRepository.findById(targetTelephoneNumber);
+        if (optionalTargetUserByTelephoneNumber.isEmpty()) {
+            return new Response("Invalid target user phone_number '" + targetTelephoneNumber + "'", errorMessage);
+        }
+        User userTarget = optionalTargetUserByTelephoneNumber.get();
+        if (isAdmin(userTarget)) {
+            return new Response("Target user is admin", errorMessage);
+        }
+        if (userTarget.getIsDeleted()) {
+            return new Response("Target user already was deleted", errorMessage);
+        }
+        return setUserDeleted(targetTelephoneNumber, requesterTelephoneNumber, userTarget);
     }
 
     private Response setUserLocked(String targetTelephoneNumber, String requesterTelephoneNumber,
@@ -171,7 +199,16 @@ public class UserService {
         return new Response("Database error. Please,contact support team. Requester "
                 + requesterTelephoneNumber + ",target " + targetTelephoneNumber, errorMessage);
     }
-
+    private Response setUserDeleted(String targetTelephoneNumber, String requesterTelephoneNumber,
+                                   User userTarget) {
+        userTarget.setIsDeleted(true);
+        User saved = userRepository.save(userTarget);
+        if (saved.getIsDeleted()) {
+            return new Response("", successMessage);
+        }
+        return new Response("Database error. Please,contact support team. Requester "
+                + requesterTelephoneNumber + ",target " + targetTelephoneNumber, errorMessage);
+    }
     private boolean isAdmin(User user) {
         return user.getRoles().stream().anyMatch
                 (roleUser -> roleUser.getName().equalsIgnoreCase("admin"));
