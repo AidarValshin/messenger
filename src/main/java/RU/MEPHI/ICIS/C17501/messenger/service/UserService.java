@@ -1,9 +1,11 @@
 package RU.MEPHI.ICIS.C17501.messenger.service;
 
+import RU.MEPHI.ICIS.C17501.messenger.db.dao.Device;
 import RU.MEPHI.ICIS.C17501.messenger.db.dao.User;
 import RU.MEPHI.ICIS.C17501.messenger.db.dao.UserCredentials;
 import RU.MEPHI.ICIS.C17501.messenger.db.dto.UserDTO;
 import RU.MEPHI.ICIS.C17501.messenger.db.projection.UserProjection;
+import RU.MEPHI.ICIS.C17501.messenger.db.repo.DeviceRepository;
 import RU.MEPHI.ICIS.C17501.messenger.db.repo.RoleRepository;
 import RU.MEPHI.ICIS.C17501.messenger.db.repo.UserCredentialsRepository;
 import RU.MEPHI.ICIS.C17501.messenger.db.repo.UserRepository;
@@ -36,6 +38,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private DeviceRepository deviceRepository;
 
     @Autowired
     private UserCredentialsRepository userCredentialsRepository;
@@ -243,19 +248,26 @@ public class UserService {
     }
 
 
-    public Response createNewUser(String telephoneNumber, String login, String firstName,
-                                  String secondName, Date dateOfBirth, String gender, String password) {
+    public Response createNewUser(String telephoneNumber, String login, String firstName, String secondName,
+                                  Date dateOfBirth, String gender, String password, String fcmRegistrationTokenId) {
+
+        // Проверяем, зарегистрирован ли уже пользователь с указанным номером телефона
         if (userRepository.findById(telephoneNumber).isPresent()) {
             return new Response("User with this telephone number already exists", errorMessage);
         }
+
+        // Проверяем уникальность указанного логина
         if (!userRepository.findAllByLogin(login).isEmpty()) {
             return new Response("User with this login already exists", errorMessage);
         }
+
+        // Создаём пользователя, пароль храним с зашифрованном виде
         String passHash = getPassHash(password);
         UserCredentials userCredentials = UserCredentials.builder()
                 .telephoneNumber(telephoneNumber)
                 .password(passHash)
                 .build();
+
         User user = User.builder()
                 .telephoneNumber(telephoneNumber)
                 .login(login)
@@ -267,30 +279,43 @@ public class UserService {
                 .isDeleted(false)
                 .isLocked(false)
                 .roles(roleRepository.findById(1L).stream().collect(Collectors.toSet()))
+                .userDevices(new HashSet<>())
                 .build();
+
+        // Создаём устройство для обмена сообщениями, добавляем его во владение создаваемого пользователя
+        associateDeviceToUser(fcmRegistrationTokenId, user);
+
         Set<ConstraintViolation<UserCredentials>> validationResultsUserCredentials = validator.validate(userCredentials);
         Set<ConstraintViolation<User>> validationResultsUser = validator.validate(user);
+
         if (!validationResultsUserCredentials.isEmpty() || !validationResultsUser.isEmpty()) {
             String validationResult = validationResultsUser.stream().map(r -> r.getPropertyPath() + ":" + r.getMessage()).collect(Collectors.joining(", ")) +
                     validationResultsUserCredentials.stream().map(r -> r.getPropertyPath() + ":" + r.getMessage()).collect(Collectors.joining(", "));
             return new Response(validationResult, errorMessage);
         }
+
         userRepository.save(user);
+
         return new Response("User is registered", successMessage);
     }
 
-    public Response checkCredentials(String telephoneNumber, String password) {
+    public Response authorize(String telephoneNumber, String password, String fcmRegistrationTokenId) {
+        // Проверяем, есть (и если есть, то в каком статусе) указанный пользователь
         Optional<UserCredentials> optionalUserCredentials = userCredentialsRepository.findById(telephoneNumber);
         if (optionalUserCredentials.isPresent()) {
             UserCredentials userCredentials = optionalUserCredentials.get();
             User user = userCredentials.getUser();
-            if(user.getIsDeleted()){
+            if (user.getIsDeleted()) {
                 return new Response("User is deleted", errorMessage);
             }
-            if(user.getIsLocked()){
+            if (user.getIsLocked()) {
                 return new Response("User is locked", errorMessage);
             }
+            // Проверяем, правильный ли пароль для данного пользователя
             if (getPassHash(password).equals(userCredentials.getPassword())) {
+                // Если устройство новое, то добавляем его и ассоцииируем
+                // Если устройство не новое, то ничего не делаем, подрузумевая всё ту же "СМС-авторизацию"
+                associateDeviceToUser(fcmRegistrationTokenId, user);
                 return new Response("Right credentials", successMessage);
             }
         }
@@ -321,4 +346,56 @@ public class UserService {
         byte[] digest = md5.digest();
         return DatatypeConverter.printHexBinary(digest).toUpperCase();
     }
+
+    /**
+     * Метод для связывания пользователя с устройством
+     * @param fcmRegistrationTokenId ID Firebase-токена устройства пользователя
+     * @param user пользователь добавляемого устройства
+     * @return true - если устройство с указанным токеном было проассоциировано с пользователем. Иначе - false.
+     */
+    private boolean associateDeviceToUser(String fcmRegistrationTokenId, User user) {
+        if (isNewDeviceForUser(fcmRegistrationTokenId, user)) {
+            // Создаём сущность устройства
+            Device device = Device.builder()
+                    .registrationId(fcmRegistrationTokenId)
+                    .build();
+            // Проверяем, зарегистрировано ли вообще устройство с указанным fcmRegistrationTokenId
+            if (deviceRepository.findById(fcmRegistrationTokenId).isEmpty()) {
+                // Регистрируем новое устройство
+                deviceRepository.save(device);
+            }
+            // Ассоциируем новое устройство с пользователем
+            user.getUserDevices().add(device);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Метод, проверяющий, ассоциирован ли пользователь с устройством, имеющим
+     * указанный fcmRegistrationTokenId
+     * @param fcmRegistrationTokenId уникальный регистрационный токен для конкретного устройства входа
+     * @param user пользователь
+     * @return true - если устройство входа с указанным токеном - новое для данного пользователя. Иначе - false
+     */
+    private boolean isNewDeviceForUser(String fcmRegistrationTokenId, User user) {
+        Set<Device> userDevices = user.getUserDevices();
+        return userDevices.stream()
+                .noneMatch(device -> device.getRegistrationId().equals(fcmRegistrationTokenId));
+    }
+
+    /**
+     * Utility-метод получения полного имени пользователя
+     * @param user пользователь
+     * @return полное имя пользователя
+     */
+    public String getFullUserName(User user) {
+        return user.getFirstName() + " " + user.getSecondName();
+    }
+
+    public User getUserEntityByTelNumber(String telNumberOfUser) {
+        return userRepository.getById(telNumberOfUser);
+    }
+
 }

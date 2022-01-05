@@ -70,6 +70,7 @@ public class MessagesController {
                                 @RequestHeader(value = "requester_authorization_number") String senderTelNumber,
                                 @RequestHeader(value = "pass") String password) {
 
+        // Проверяем, авторизован ли пользователь
         if (userService.checkCredentialsAndStatusInRequests(senderTelNumber, password) != null) {
             return new Response(userService.checkCredentialsAndStatusInRequests(senderTelNumber, password), Response.errorMessage);
         }
@@ -84,9 +85,13 @@ public class MessagesController {
         // Сохраняем сообщение в БД
         Message message = messageService.createMessage(targetChatId, messageContent, senderTelNumber);
 
-        // Логгируем успех операции
         logger.info("Message to chatId={} with content=\"{{}}\" successfully received from client",
                 targetChatId, messageContent);
+
+        // Посылаем push-уведомление на клиент
+        messageService.notifyClient(message, targetChatId);
+
+        logger.info("All target users was notificated");
 
         return new Response("", Response.successMessage);
     }

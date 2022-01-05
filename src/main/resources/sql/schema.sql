@@ -1,4 +1,4 @@
-DROP SCHEMA IF EXISTS messenger CASCADE  ;
+DROP SCHEMA IF EXISTS messenger CASCADE;
 CREATE SCHEMA IF NOT EXISTS messenger;
 
     create table messenger.chat_contacts (
@@ -9,6 +9,7 @@ CREATE SCHEMA IF NOT EXISTS messenger;
         primary key (id_chat_contact)
     )
 ;
+
 CREATE INDEX id_chat_contacts_idx
 ON messenger.chat_contacts(id_chat_contact);
 
@@ -21,7 +22,8 @@ ON messenger.chat_contacts(id_chat_contact);
         primary key (id_chat)
     )
 ;
-    CREATE INDEX id_chats_idx
+
+CREATE INDEX id_chats_idx
 ON messenger.chats( id_chat);
 
     create table messenger.messages (
@@ -35,14 +37,12 @@ ON messenger.chats( id_chat);
         primary key (id_message)
     )
 ;
-    CREATE INDEX id_messages_idx
+
+CREATE INDEX id_messages_idx
 ON messenger.messages( id_message);
 
-    CREATE INDEX date_messages_idx
+CREATE INDEX date_messages_idx
 ON messenger.messages( date);
-
-
-
 
     create table messenger.roles  (
        id_role serial ,
@@ -58,6 +58,7 @@ ON messenger.messages( date);
         primary key (id_role, telephone_number)
     )
 ;
+
 CREATE INDEX role_roles_users_mapping_idx
 ON messenger.roles_users_mapping( id_role);
 
@@ -70,6 +71,7 @@ ON messenger.roles_users_mapping( telephone_number);
         primary key (telephone_number)
     )
 ;
+
 CREATE INDEX login_user_credentials_idx
 ON messenger.user_credentials(telephone_number);
 
@@ -85,16 +87,17 @@ ON messenger.user_credentials(telephone_number);
         second_name varchar(20) not null,
         primary key (telephone_number)
     );
-	CREATE INDEX login_users_idx
+
+CREATE INDEX login_users_idx
 ON messenger.users(login);
 
-	CREATE INDEX telephone_number_users_idx
+CREATE INDEX telephone_number_users_idx
 ON messenger.users(telephone_number);
 
-	CREATE INDEX first_name_users_idx
+CREATE INDEX first_name_users_idx
 ON messenger.users(first_name);
 
-	CREATE INDEX second_name_users_idx
+CREATE INDEX second_name_users_idx
 ON messenger.users(second_name);
 
 

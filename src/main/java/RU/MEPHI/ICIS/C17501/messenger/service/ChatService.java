@@ -20,12 +20,16 @@ import static RU.MEPHI.ICIS.C17501.messenger.responce.Response.errorMessage;
 
 @Service
 public class ChatService {
+
     @Autowired
     ChatRepository chatRepository;
+
     @Autowired
     UserRepository userRepository;
+
     @Autowired
     ChatContactRepository chatContactRepository;
+
     @Autowired
     UserService userService;
 
@@ -191,6 +195,38 @@ public class ChatService {
                 .name(chat.getChatName() != null ? chat.getChatName() : "")
                 .isSubscriber(true)
                 .build();
+    }
+
+    /**
+     * Метод получения имени чата по ID
+     * @param chatId ID чата
+     * @return название чата
+     */
+    public String getChatNameById(Long chatId) {
+        String targetChatName = "";
+        final Optional<Chat> chat = chatRepository.findById(chatId);
+        if (chat.isPresent()) {
+            targetChatName = chat.get().getChatName();
+        }
+        return targetChatName;
+    }
+
+    /**
+     * Метод получения всех подписчиков чата с указанным id
+     * @param chatId id чата
+     * @return список пользователей, входящих в чат
+     */
+    public List<User> getAllSubscribersByChatId(Long chatId) {
+        Optional<Chat> chatOptional = chatRepository.findByIdChat(chatId);
+        List<User> subscribersList = new ArrayList<>();
+        if (chatOptional.isPresent()) {
+            subscribersList = chatOptional.get()
+                    .getChatContacts()
+                    .stream()
+                    .map(ChatContact::getUser)
+                    .collect(Collectors.toList());
+        }
+        return subscribersList;
     }
 
 }

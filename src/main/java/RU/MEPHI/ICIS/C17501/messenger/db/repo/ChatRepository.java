@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ChatRepository extends JpaRepository<Chat, Long> {
@@ -30,5 +31,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     List<Chat> findAllByChatName(String chatName);
 
     List<Chat> findByChatNameContaining(String chatName, Pageable pageable);
+
+    Optional<Chat> findByIdChat(Long chatId);
 
 }
