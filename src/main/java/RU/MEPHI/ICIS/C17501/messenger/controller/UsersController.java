@@ -82,15 +82,17 @@ public class UsersController {
                                  @RequestHeader("second_name") String secondName,
                                  @RequestHeader("date_of_birth") Date dateOfBirth,
                                  @RequestHeader("gender") String gender,
-                                 @RequestHeader("pass") String password) {
-        return userService.createNewUser(telephoneNumber, login, firstName,
-                secondName, dateOfBirth, gender, password);
+                                 @RequestHeader("pass") String password,
+                                 @RequestHeader("registration_id") String fcmRegistrationTokenId) {
+        return userService.createNewUser(telephoneNumber, login, firstName, secondName,
+                                            dateOfBirth, gender, password, fcmRegistrationTokenId);
     }
 
     @PostMapping("/authorize")
     public Response checkCredentials(@RequestHeader("telephone_number") String telephoneNumber,
-                                     @RequestHeader("pass") String password) {
-        return userService.checkCredentials(telephoneNumber, password);
+                                     @RequestHeader("pass") String password,
+                                     @RequestHeader("registration_id") String fcmRegistrationTokenId) {
+        return userService.authorize(telephoneNumber, password, fcmRegistrationTokenId);
     }
 
     @PostMapping(value = "/upload/avatar",
@@ -102,7 +104,7 @@ public class UsersController {
         boolean isImageSuccessfullyUploaded = false;
 
         /*if (isImageSuccessfullyUploaded) {
-            // TODO: тут интегрируемся с AmazonS3
+            //
         } else {
             return new Response("", errorMessage);
         }*/

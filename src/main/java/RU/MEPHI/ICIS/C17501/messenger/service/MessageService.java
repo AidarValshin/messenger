@@ -1,21 +1,26 @@
 package RU.MEPHI.ICIS.C17501.messenger.service;
 
 import RU.MEPHI.ICIS.C17501.messenger.db.dao.Message;
+import RU.MEPHI.ICIS.C17501.messenger.db.dao.User;
 import RU.MEPHI.ICIS.C17501.messenger.db.dto.NarrowDTO;
+import RU.MEPHI.ICIS.C17501.messenger.db.dto.OutgoingMessageDTO;
 import RU.MEPHI.ICIS.C17501.messenger.db.metadata.Operator;
 import RU.MEPHI.ICIS.C17501.messenger.db.repo.MessageRepository;
 import RU.MEPHI.ICIS.C17501.messenger.exception.ExceptionMessages;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.*;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MessageService {
@@ -30,6 +35,9 @@ public class MessageService {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    DeviceService deviceService;
 
     private List<Message> messagesLikePaginationCache;
 
@@ -51,7 +59,7 @@ public class MessageService {
                 .idChat(targetChatId)
                 .text(messageContent)
                 .telephoneNumber(senderTelNumber)
-                //.lastChangesDate(new Date())
+                .user(userService.getUserEntityByTelNumber(senderTelNumber))
                 .isDeleted(false)
                 .build();
 
@@ -70,6 +78,7 @@ public class MessageService {
 
     /**
      * Метод получения списка n новых сообщений для чата с id = chatId
+     *
      * @param n      какое количество новых сообщений нам нужно
      * @param chatId в каком чате (с каким id) искать
      * @return список из n сообщений из заданного chatId чата
@@ -173,7 +182,7 @@ public class MessageService {
                                 }
                             }
                             int leftBound = anchorMessageNumberInQuery >= numBefore ?
-                                            (int) (anchorMessageNumberInQuery - numBefore) : 0;
+                                    (int) (anchorMessageNumberInQuery - numBefore) : 0;
                             foundMessages = foundMessages.subList(leftBound, anchorMessageNumberInQuery);
                         }
                     }
@@ -191,5 +200,78 @@ public class MessageService {
 
         return foundMessages;
     }
+
+    public void notifyClient(Message message, Long targetChatId) {
+
+        // Получаем название чата, куда отправляем сообщение
+        String channelName = chatService.getChatNameById(targetChatId);
+
+        // Получаем мобильные номера всех подписчиков чата
+        List<String> receiverTelephoneNumbers = chatService
+                .getAllSubscribersByChatId(targetChatId)
+                .stream()
+                .map(User::getTelephoneNumber)
+                .collect(Collectors.toList());
+
+        // Добавляем в хэш-таблицу значения
+        // "номер. телефона <-> зарегистрированные для номера телефона устройства" (FCM-токены устройств получателя)
+        Map<String, List<String>> telNumbersAndRegistrationIds = new HashMap<>();
+        for (String receiverTelNumber : receiverTelephoneNumbers) {
+            telNumbersAndRegistrationIds.put(
+                    receiverTelNumber,
+                    deviceService.getAllDevicesIdsByTelNumber(receiverTelNumber));
+        }
+
+        // Создаём шаблон JSON-объектов для отправки
+        JSONObject bodyJson = new JSONObject();  // Весь JSON
+        JSONObject dataJson = new JSONObject();  // Поле data
+
+        // Подготавливаем формат внутреннего JSON для поля message
+        JSONObject messageJson = new JSONObject(
+                new OutgoingMessageDTO(
+                        message.getText(),
+                        message.getIdMessage(),
+                        userService.getFullUserName(message.getUser()),
+                        message.getUser().getTelephoneNumber(),
+                        message.getLastChangesDate().getTime()));
+
+        dataJson.put("message", messageJson);
+        dataJson.put("channel_id", targetChatId);
+        dataJson.put("channel", channelName);
+
+        // Создаём веб-клиент для интеграции с внешним HTTP API
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Authorization", WEB_CLIENT_AUTHORIZATION_HEADER_VALUE);
+        httpHeaders.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        String apiUrl = WEB_CLIENT_BASE_URL + WEB_CLIENT_SEND_URI;
+
+        // В цикле отправляем всем подписчикам чата сообщение шаблона,
+        // в котором меняем только поле receiver_authorization_number
+        Iterator<Map.Entry<String, List<String>>> iterator
+                = telNumbersAndRegistrationIds.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            // Получаем очередной номер телефона пользователя и соотв. ему id устройств
+            Map.Entry<String, List<String>> entry = iterator.next();
+            // Заполняем изменяющуюся часть главного JSON-объекта
+            dataJson.put("receiver_authorization_number", entry.getKey());
+            bodyJson.put("registration_ids", entry.getValue());
+            bodyJson.put("data", dataJson);
+
+            // Отправляем запрос и получаем ответ
+            HttpEntity<String> httpEntity = new HttpEntity<>(bodyJson.toString(), httpHeaders);
+            ResponseEntity<String> response = restTemplate
+                    .exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
+            // TODO: для отладки
+            System.out.println(response);
+        }
+    }
+
+    private final static String WEB_CLIENT_BASE_URL = "https://fcm.googleapis.com/fcm";
+    private final static String WEB_CLIENT_SEND_URI = "/send";
+    private final static String WEB_CLIENT_AUTHORIZATION_HEADER_VALUE = "key=AAAAzbi7ctQ:APA91bH5aRs6IsR3ItSqcFQ8_in9UmQ4nCYM2KzLN59Ven3rOBhxOZfjC7Y7UXU-HG6ylM8PijOSzyAJW2fRmCYdBzgGdlrcppyPk5tAgJsvCaxyaaMsjbGwstgDhNbJOxAd1eLyXmeE";
+    private final static Integer WEB_CLIENT_TIMEOUT_DURATION = 5; // seconds
 
 }
