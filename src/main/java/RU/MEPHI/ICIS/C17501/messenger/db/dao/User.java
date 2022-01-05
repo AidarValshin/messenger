@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -76,4 +77,14 @@ public class User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "telephoneNumber", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<ChatContact> chatContactsSet;
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "users_devices",
+            joinColumns = @JoinColumn(name = "telephone_number"),
+            inverseJoinColumns = @JoinColumn(name = "registration_Id")
+    )
+    @ToString.Exclude
+    private Set<Device> userDevices = new HashSet<>();
 }
